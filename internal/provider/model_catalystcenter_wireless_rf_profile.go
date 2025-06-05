@@ -30,46 +30,60 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type WirelessRFProfile struct {
-	Id                           types.String `tfsdk:"id"`
-	Name                         types.String `tfsdk:"name"`
-	DefaultRfProfile             types.Bool   `tfsdk:"default_rf_profile"`
-	EnableRadioTypeA             types.Bool   `tfsdk:"enable_radio_type_a"`
-	EnableRadioTypeB             types.Bool   `tfsdk:"enable_radio_type_b"`
-	EnableRadioTypeC             types.Bool   `tfsdk:"enable_radio_type_c"`
-	ChannelWidth                 types.String `tfsdk:"channel_width"`
-	EnableCustom                 types.Bool   `tfsdk:"enable_custom"`
-	EnableBrownField             types.Bool   `tfsdk:"enable_brown_field"`
-	RadioTypeAParentProfile      types.String `tfsdk:"radio_type_a_parent_profile"`
-	RadioTypeARadioChannels      types.String `tfsdk:"radio_type_a_radio_channels"`
-	RadioTypeADataRates          types.String `tfsdk:"radio_type_a_data_rates"`
-	RadioTypeAMandatoryDataRates types.String `tfsdk:"radio_type_a_mandatory_data_rates"`
-	RadioTypeAPowerThresholdV1   types.Int64  `tfsdk:"radio_type_a_power_threshold_v1"`
-	RadioTypeARxSopThreshold     types.String `tfsdk:"radio_type_a_rx_sop_threshold"`
-	RadioTypeAMinPowerLevel      types.Int64  `tfsdk:"radio_type_a_min_power_level"`
-	RadioTypeAMaxPowerLevel      types.Int64  `tfsdk:"radio_type_a_max_power_level"`
-	RadioTypeBParentProfile      types.String `tfsdk:"radio_type_b_parent_profile"`
-	RadioTypeBRadioChannels      types.String `tfsdk:"radio_type_b_radio_channels"`
-	RadioTypeBDataRates          types.String `tfsdk:"radio_type_b_data_rates"`
-	RadioTypeBMandatoryDataRates types.String `tfsdk:"radio_type_b_mandatory_data_rates"`
-	RadioTypeBPowerThresholdV1   types.Int64  `tfsdk:"radio_type_b_power_threshold_v1"`
-	RadioTypeBRxSopThreshold     types.String `tfsdk:"radio_type_b_rx_sop_threshold"`
-	RadioTypeBMinPowerLevel      types.Int64  `tfsdk:"radio_type_b_min_power_level"`
-	RadioTypeBMaxPowerLevel      types.Int64  `tfsdk:"radio_type_b_max_power_level"`
-	RadioTypeCParentProfile      types.String `tfsdk:"radio_type_c_parent_profile"`
-	RadioTypeCRadioChannels      types.String `tfsdk:"radio_type_c_radio_channels"`
-	RadioTypeCDataRates          types.String `tfsdk:"radio_type_c_data_rates"`
-	RadioTypeCMandatoryDataRates types.String `tfsdk:"radio_type_c_mandatory_data_rates"`
-	RadioTypeCPowerThresholdV1   types.Int64  `tfsdk:"radio_type_c_power_threshold_v1"`
-	RadioTypeCRxSopThreshold     types.String `tfsdk:"radio_type_c_rx_sop_threshold"`
-	RadioTypeCMinPowerLevel      types.Int64  `tfsdk:"radio_type_c_min_power_level"`
-	RadioTypeCMaxPowerLevel      types.Int64  `tfsdk:"radio_type_c_max_power_level"`
+	Id                                                                         types.String `tfsdk:"id"`
+	RfProfileName                                                              types.String `tfsdk:"rf_profile_name"`
+	DefaultRfProfile                                                           types.Bool   `tfsdk:"default_rf_profile"`
+	EnableRadioTypeA                                                           types.Bool   `tfsdk:"enable_radio_type_a"`
+	EnableRadioTypeB                                                           types.Bool   `tfsdk:"enable_radio_type_b"`
+	EnableRadioType6GHz                                                        types.Bool   `tfsdk:"enable_radio_type6_g_hz"`
+	RadioTypeAParentProfile                                                    types.String `tfsdk:"radio_type_a_parent_profile"`
+	RadioTypeARadioChannels                                                    types.String `tfsdk:"radio_type_a_radio_channels"`
+	RadioTypeADataRates                                                        types.String `tfsdk:"radio_type_a_data_rates"`
+	RadioTypeAMandatoryDataRates                                               types.String `tfsdk:"radio_type_a_mandatory_data_rates"`
+	RadioTypeAPowerThresholdV1                                                 types.Int64  `tfsdk:"radio_type_a_power_threshold_v1"`
+	RadioTypeARxSopThreshold                                                   types.String `tfsdk:"radio_type_a_rx_sop_threshold"`
+	RadioTypeAMinPowerLevel                                                    types.Int64  `tfsdk:"radio_type_a_min_power_level"`
+	RadioTypeAMaxPowerLevel                                                    types.Int64  `tfsdk:"radio_type_a_max_power_level"`
+	RadioTypeAChannelWidth                                                     types.String `tfsdk:"radio_type_a_channel_width"`
+	RadioTypeAPreamblePuncture                                                 types.Bool   `tfsdk:"radio_type_a_preamble_puncture"`
+	RadioTypeAZeroWaitDfsEnable                                                types.Bool   `tfsdk:"radio_type_a_zero_wait_dfs_enable"`
+	RadioTypeACustomRxSopThreshold                                             types.Int64  `tfsdk:"radio_type_a_custom_rx_sop_threshold"`
+	RadioTypeAMaxRadioClients                                                  types.Int64  `tfsdk:"radio_type_a_max_radio_clients"`
+	RadioTypeAFraPropertiesClientAware                                         types.Bool   `tfsdk:"radio_type_a_fra_properties_client_aware"`
+	RadioTypeAFraPropertiesClientSelect                                        types.Int64  `tfsdk:"radio_type_a_fra_properties_client_select"`
+	RadioTypeAFraPropertiesClientReset                                         types.Int64  `tfsdk:"radio_type_a_fra_properties_client_reset"`
+	RadioTypeACoverageHoleDetectionPropertiesChdClientLevel                    types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_client_level"`
+	RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold              types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold"`
+	RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold             types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
+	RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel                 types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_exception_level"`
+	RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect             types.Bool   `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
+	RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold types.Int64  `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
+	RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect                types.Bool   `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect"`
+	RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold    types.Int64  `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
+	RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold    types.Int64  `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
+	RadioTypeBParentProfile                                                    types.String `tfsdk:"radio_type_b_parent_profile"`
+	RadioTypeBRadioChannels                                                    types.String `tfsdk:"radio_type_b_radio_channels"`
+	RadioTypeBDataRates                                                        types.String `tfsdk:"radio_type_b_data_rates"`
+	RadioTypeBMandatoryDataRates                                               types.String `tfsdk:"radio_type_b_mandatory_data_rates"`
+	RadioTypeBPowerThresholdV1                                                 types.Int64  `tfsdk:"radio_type_b_power_threshold_v1"`
+	RadioTypeBRxSopThreshold                                                   types.String `tfsdk:"radio_type_b_rx_sop_threshold"`
+	RadioTypeBMinPowerLevel                                                    types.Int64  `tfsdk:"radio_type_b_min_power_level"`
+	RadioTypeBMaxPowerLevel                                                    types.Int64  `tfsdk:"radio_type_b_max_power_level"`
+	RadioTypeCParentProfile                                                    types.String `tfsdk:"radio_type_c_parent_profile"`
+	RadioTypeCRadioChannels                                                    types.String `tfsdk:"radio_type_c_radio_channels"`
+	RadioTypeCDataRates                                                        types.String `tfsdk:"radio_type_c_data_rates"`
+	RadioTypeCMandatoryDataRates                                               types.String `tfsdk:"radio_type_c_mandatory_data_rates"`
+	RadioTypeCPowerThresholdV1                                                 types.Int64  `tfsdk:"radio_type_c_power_threshold_v1"`
+	RadioTypeCRxSopThreshold                                                   types.String `tfsdk:"radio_type_c_rx_sop_threshold"`
+	RadioTypeCMinPowerLevel                                                    types.Int64  `tfsdk:"radio_type_c_min_power_level"`
+	RadioTypeCMaxPowerLevel                                                    types.Int64  `tfsdk:"radio_type_c_max_power_level"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data WirelessRFProfile) getPath() string {
-	return "/dna/intent/api/v1/wireless/rf-profile"
+	return "/dna/intent/api/v1/wirelessSettings/rfProfiles"
 }
 
 // End of section. //template:end getPath
@@ -86,8 +100,8 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 		put = true
 	}
 	_ = put
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
+	if !data.RfProfileName.IsNull() {
+		body, _ = sjson.Set(body, "rfProfileName", data.RfProfileName.ValueString())
 	}
 	if !data.DefaultRfProfile.IsNull() {
 		body, _ = sjson.Set(body, "defaultRfProfile", data.DefaultRfProfile.ValueBool())
@@ -98,17 +112,8 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 	if !data.EnableRadioTypeB.IsNull() {
 		body, _ = sjson.Set(body, "enableRadioTypeB", data.EnableRadioTypeB.ValueBool())
 	}
-	if !data.EnableRadioTypeC.IsNull() {
-		body, _ = sjson.Set(body, "enableRadioTypeC", data.EnableRadioTypeC.ValueBool())
-	}
-	if !data.ChannelWidth.IsNull() {
-		body, _ = sjson.Set(body, "channelWidth", data.ChannelWidth.ValueString())
-	}
-	if !data.EnableCustom.IsNull() {
-		body, _ = sjson.Set(body, "enableCustom", data.EnableCustom.ValueBool())
-	}
-	if !data.EnableBrownField.IsNull() {
-		body, _ = sjson.Set(body, "enableBrownField", data.EnableBrownField.ValueBool())
+	if !data.EnableRadioType6GHz.IsNull() {
+		body, _ = sjson.Set(body, "enableRadioType6GHz", data.EnableRadioType6GHz.ValueBool())
 	}
 	if !data.RadioTypeAParentProfile.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeAProperties.parentProfile", data.RadioTypeAParentProfile.ValueString())
@@ -133,6 +138,57 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 	}
 	if !data.RadioTypeAMaxPowerLevel.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeAProperties.maxPowerLevel", data.RadioTypeAMaxPowerLevel.ValueInt64())
+	}
+	if !data.RadioTypeAChannelWidth.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.channelWidth", data.RadioTypeAChannelWidth.ValueString())
+	}
+	if !data.RadioTypeAPreamblePuncture.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.preamblePuncture", data.RadioTypeAPreamblePuncture.ValueBool())
+	}
+	if !data.RadioTypeAZeroWaitDfsEnable.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.zeroWaitDfsEnable", data.RadioTypeAZeroWaitDfsEnable.ValueBool())
+	}
+	if !data.RadioTypeACustomRxSopThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.customRxSopThreshold", data.RadioTypeACustomRxSopThreshold.ValueInt64())
+	}
+	if !data.RadioTypeAMaxRadioClients.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.maxRadioClients", data.RadioTypeAMaxRadioClients.ValueInt64())
+	}
+	if !data.RadioTypeAFraPropertiesClientAware.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.fraPropertiesA.clientAware", data.RadioTypeAFraPropertiesClientAware.ValueBool())
+	}
+	if !data.RadioTypeAFraPropertiesClientSelect.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.fraPropertiesA.clientSelect", data.RadioTypeAFraPropertiesClientSelect.ValueInt64())
+	}
+	if !data.RadioTypeAFraPropertiesClientReset.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.fraPropertiesA.clientReset", data.RadioTypeAFraPropertiesClientReset.ValueInt64())
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.coverageHoleDetectionProperties.chdClientLevel", data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel.ValueInt64())
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.coverageHoleDetectionProperties.chdDataRssiThreshold", data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold.ValueInt64())
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.coverageHoleDetectionProperties.chdVoiceRssiThreshold", data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold.ValueInt64())
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.coverageHoleDetectionProperties.chdExceptionLevel", data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.ValueInt64())
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect", data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.ValueBool())
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold", data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.ValueInt64())
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect", data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.ValueBool())
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold", data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.ValueInt64())
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold", data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.ValueInt64())
 	}
 	if !data.RadioTypeBParentProfile.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeBProperties.parentProfile", data.RadioTypeBParentProfile.ValueString())
@@ -189,85 +245,155 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *WirelessRFProfile) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.name"); value.Exists() {
-		data.Name = types.StringValue(value.String())
+	if value := res.Get("rfProfileName"); value.Exists() {
+		data.RfProfileName = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.RfProfileName = types.StringNull()
 	}
-	if value := res.Get("response.0.defaultRfProfile"); value.Exists() {
+	if value := res.Get("defaultRfProfile"); value.Exists() {
 		data.DefaultRfProfile = types.BoolValue(value.Bool())
 	} else {
 		data.DefaultRfProfile = types.BoolNull()
 	}
-	if value := res.Get("response.0.enableRadioTypeA"); value.Exists() {
+	if value := res.Get("enableRadioTypeA"); value.Exists() {
 		data.EnableRadioTypeA = types.BoolValue(value.Bool())
 	} else {
 		data.EnableRadioTypeA = types.BoolNull()
 	}
-	if value := res.Get("response.0.enableRadioTypeB"); value.Exists() {
+	if value := res.Get("enableRadioTypeB"); value.Exists() {
 		data.EnableRadioTypeB = types.BoolValue(value.Bool())
 	} else {
 		data.EnableRadioTypeB = types.BoolNull()
 	}
-	if value := res.Get("response.0.enableRadioTypeC"); value.Exists() {
-		data.EnableRadioTypeC = types.BoolValue(value.Bool())
+	if value := res.Get("enableRadioType6GHz"); value.Exists() {
+		data.EnableRadioType6GHz = types.BoolValue(value.Bool())
 	} else {
-		data.EnableRadioTypeC = types.BoolNull()
+		data.EnableRadioType6GHz = types.BoolNull()
 	}
-	if value := res.Get("response.0.channelWidth"); value.Exists() {
-		data.ChannelWidth = types.StringValue(value.String())
-	} else {
-		data.ChannelWidth = types.StringNull()
-	}
-	if value := res.Get("response.0.enableCustom"); value.Exists() {
-		data.EnableCustom = types.BoolValue(value.Bool())
-	} else {
-		data.EnableCustom = types.BoolNull()
-	}
-	if value := res.Get("response.0.enableBrownField"); value.Exists() {
-		data.EnableBrownField = types.BoolValue(value.Bool())
-	} else {
-		data.EnableBrownField = types.BoolNull()
-	}
-	if value := res.Get("response.0.radioTypeAProperties.parentProfile"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.parentProfile"); value.Exists() {
 		data.RadioTypeAParentProfile = types.StringValue(value.String())
 	} else {
 		data.RadioTypeAParentProfile = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.radioChannels"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.radioChannels"); value.Exists() {
 		data.RadioTypeARadioChannels = types.StringValue(value.String())
 	} else {
 		data.RadioTypeARadioChannels = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.dataRates"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.dataRates"); value.Exists() {
 		data.RadioTypeADataRates = types.StringValue(value.String())
 	} else {
 		data.RadioTypeADataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.mandatoryDataRates"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.mandatoryDataRates"); value.Exists() {
 		data.RadioTypeAMandatoryDataRates = types.StringValue(value.String())
 	} else {
 		data.RadioTypeAMandatoryDataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.powerThresholdV1"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.powerThresholdV1"); value.Exists() {
 		data.RadioTypeAPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
 		data.RadioTypeAPowerThresholdV1 = types.Int64Null()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.rxSopThreshold"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.rxSopThreshold"); value.Exists() {
 		data.RadioTypeARxSopThreshold = types.StringValue(value.String())
 	} else {
 		data.RadioTypeARxSopThreshold = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.minPowerLevel"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.minPowerLevel"); value.Exists() {
 		data.RadioTypeAMinPowerLevel = types.Int64Value(value.Int())
 	} else {
 		data.RadioTypeAMinPowerLevel = types.Int64Null()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.maxPowerLevel"); value.Exists() {
+	if value := res.Get("radioTypeAProperties.maxPowerLevel"); value.Exists() {
 		data.RadioTypeAMaxPowerLevel = types.Int64Value(value.Int())
 	} else {
 		data.RadioTypeAMaxPowerLevel = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.channelWidth"); value.Exists() {
+		data.RadioTypeAChannelWidth = types.StringValue(value.String())
+	} else {
+		data.RadioTypeAChannelWidth = types.StringNull()
+	}
+	if value := res.Get("radioTypeAProperties.preamblePuncture"); value.Exists() {
+		data.RadioTypeAPreamblePuncture = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeAPreamblePuncture = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.zeroWaitDfsEnable"); value.Exists() {
+		data.RadioTypeAZeroWaitDfsEnable = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeAZeroWaitDfsEnable = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.customRxSopThreshold"); value.Exists() {
+		data.RadioTypeACustomRxSopThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACustomRxSopThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.maxRadioClients"); value.Exists() {
+		data.RadioTypeAMaxRadioClients = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeAMaxRadioClients = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.fraPropertiesA.clientAware"); value.Exists() {
+		data.RadioTypeAFraPropertiesClientAware = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeAFraPropertiesClientAware = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.fraPropertiesA.clientSelect"); value.Exists() {
+		data.RadioTypeAFraPropertiesClientSelect = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeAFraPropertiesClientSelect = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.fraPropertiesA.clientReset"); value.Exists() {
+		data.RadioTypeAFraPropertiesClientReset = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeAFraPropertiesClientReset = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdClientLevel"); value.Exists() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdDataRssiThreshold"); value.Exists() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdVoiceRssiThreshold"); value.Exists() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdExceptionLevel"); value.Exists() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect"); value.Exists() {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold"); value.Exists() {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect"); value.Exists() {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold"); value.Exists() {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold"); value.Exists() {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeBProperties.parentProfile"); value.Exists() {
 		data.RadioTypeBParentProfile = types.StringValue(value.String())
@@ -355,85 +481,155 @@ func (data *WirelessRFProfile) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.name"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
+	if value := res.Get("rfProfileName"); value.Exists() && !data.RfProfileName.IsNull() {
+		data.RfProfileName = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.RfProfileName = types.StringNull()
 	}
-	if value := res.Get("response.0.defaultRfProfile"); value.Exists() && !data.DefaultRfProfile.IsNull() {
+	if value := res.Get("defaultRfProfile"); value.Exists() && !data.DefaultRfProfile.IsNull() {
 		data.DefaultRfProfile = types.BoolValue(value.Bool())
 	} else {
 		data.DefaultRfProfile = types.BoolNull()
 	}
-	if value := res.Get("response.0.enableRadioTypeA"); value.Exists() && !data.EnableRadioTypeA.IsNull() {
+	if value := res.Get("enableRadioTypeA"); value.Exists() && !data.EnableRadioTypeA.IsNull() {
 		data.EnableRadioTypeA = types.BoolValue(value.Bool())
 	} else {
 		data.EnableRadioTypeA = types.BoolNull()
 	}
-	if value := res.Get("response.0.enableRadioTypeB"); value.Exists() && !data.EnableRadioTypeB.IsNull() {
+	if value := res.Get("enableRadioTypeB"); value.Exists() && !data.EnableRadioTypeB.IsNull() {
 		data.EnableRadioTypeB = types.BoolValue(value.Bool())
 	} else {
 		data.EnableRadioTypeB = types.BoolNull()
 	}
-	if value := res.Get("response.0.enableRadioTypeC"); value.Exists() && !data.EnableRadioTypeC.IsNull() {
-		data.EnableRadioTypeC = types.BoolValue(value.Bool())
+	if value := res.Get("enableRadioType6GHz"); value.Exists() && !data.EnableRadioType6GHz.IsNull() {
+		data.EnableRadioType6GHz = types.BoolValue(value.Bool())
 	} else {
-		data.EnableRadioTypeC = types.BoolNull()
+		data.EnableRadioType6GHz = types.BoolNull()
 	}
-	if value := res.Get("response.0.channelWidth"); value.Exists() && !data.ChannelWidth.IsNull() {
-		data.ChannelWidth = types.StringValue(value.String())
-	} else {
-		data.ChannelWidth = types.StringNull()
-	}
-	if value := res.Get("response.0.enableCustom"); value.Exists() && !data.EnableCustom.IsNull() {
-		data.EnableCustom = types.BoolValue(value.Bool())
-	} else {
-		data.EnableCustom = types.BoolNull()
-	}
-	if value := res.Get("response.0.enableBrownField"); value.Exists() && !data.EnableBrownField.IsNull() {
-		data.EnableBrownField = types.BoolValue(value.Bool())
-	} else {
-		data.EnableBrownField = types.BoolNull()
-	}
-	if value := res.Get("response.0.radioTypeAProperties.parentProfile"); value.Exists() && !data.RadioTypeAParentProfile.IsNull() {
+	if value := res.Get("radioTypeAProperties.parentProfile"); value.Exists() && !data.RadioTypeAParentProfile.IsNull() {
 		data.RadioTypeAParentProfile = types.StringValue(value.String())
 	} else {
 		data.RadioTypeAParentProfile = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.radioChannels"); value.Exists() && !data.RadioTypeARadioChannels.IsNull() {
+	if value := res.Get("radioTypeAProperties.radioChannels"); value.Exists() && !data.RadioTypeARadioChannels.IsNull() {
 		data.RadioTypeARadioChannels = types.StringValue(value.String())
 	} else {
 		data.RadioTypeARadioChannels = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.dataRates"); value.Exists() && !data.RadioTypeADataRates.IsNull() {
+	if value := res.Get("radioTypeAProperties.dataRates"); value.Exists() && !data.RadioTypeADataRates.IsNull() {
 		data.RadioTypeADataRates = types.StringValue(value.String())
 	} else {
 		data.RadioTypeADataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.mandatoryDataRates"); value.Exists() && !data.RadioTypeAMandatoryDataRates.IsNull() {
+	if value := res.Get("radioTypeAProperties.mandatoryDataRates"); value.Exists() && !data.RadioTypeAMandatoryDataRates.IsNull() {
 		data.RadioTypeAMandatoryDataRates = types.StringValue(value.String())
 	} else {
 		data.RadioTypeAMandatoryDataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeAPowerThresholdV1.IsNull() {
+	if value := res.Get("radioTypeAProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeAPowerThresholdV1.IsNull() {
 		data.RadioTypeAPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
 		data.RadioTypeAPowerThresholdV1 = types.Int64Null()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.rxSopThreshold"); value.Exists() && !data.RadioTypeARxSopThreshold.IsNull() {
+	if value := res.Get("radioTypeAProperties.rxSopThreshold"); value.Exists() && !data.RadioTypeARxSopThreshold.IsNull() {
 		data.RadioTypeARxSopThreshold = types.StringValue(value.String())
 	} else {
 		data.RadioTypeARxSopThreshold = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.minPowerLevel"); value.Exists() && !data.RadioTypeAMinPowerLevel.IsNull() {
+	if value := res.Get("radioTypeAProperties.minPowerLevel"); value.Exists() && !data.RadioTypeAMinPowerLevel.IsNull() {
 		data.RadioTypeAMinPowerLevel = types.Int64Value(value.Int())
 	} else {
 		data.RadioTypeAMinPowerLevel = types.Int64Null()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.maxPowerLevel"); value.Exists() && !data.RadioTypeAMaxPowerLevel.IsNull() {
+	if value := res.Get("radioTypeAProperties.maxPowerLevel"); value.Exists() && !data.RadioTypeAMaxPowerLevel.IsNull() {
 		data.RadioTypeAMaxPowerLevel = types.Int64Value(value.Int())
 	} else {
 		data.RadioTypeAMaxPowerLevel = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.channelWidth"); value.Exists() && !data.RadioTypeAChannelWidth.IsNull() {
+		data.RadioTypeAChannelWidth = types.StringValue(value.String())
+	} else {
+		data.RadioTypeAChannelWidth = types.StringNull()
+	}
+	if value := res.Get("radioTypeAProperties.preamblePuncture"); value.Exists() && !data.RadioTypeAPreamblePuncture.IsNull() {
+		data.RadioTypeAPreamblePuncture = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeAPreamblePuncture = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.zeroWaitDfsEnable"); value.Exists() && !data.RadioTypeAZeroWaitDfsEnable.IsNull() {
+		data.RadioTypeAZeroWaitDfsEnable = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeAZeroWaitDfsEnable = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.customRxSopThreshold"); value.Exists() && !data.RadioTypeACustomRxSopThreshold.IsNull() {
+		data.RadioTypeACustomRxSopThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACustomRxSopThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.maxRadioClients"); value.Exists() && !data.RadioTypeAMaxRadioClients.IsNull() {
+		data.RadioTypeAMaxRadioClients = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeAMaxRadioClients = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.fraPropertiesA.clientAware"); value.Exists() && !data.RadioTypeAFraPropertiesClientAware.IsNull() {
+		data.RadioTypeAFraPropertiesClientAware = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeAFraPropertiesClientAware = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.fraPropertiesA.clientSelect"); value.Exists() && !data.RadioTypeAFraPropertiesClientSelect.IsNull() {
+		data.RadioTypeAFraPropertiesClientSelect = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeAFraPropertiesClientSelect = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.fraPropertiesA.clientReset"); value.Exists() && !data.RadioTypeAFraPropertiesClientReset.IsNull() {
+		data.RadioTypeAFraPropertiesClientReset = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeAFraPropertiesClientReset = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdClientLevel"); value.Exists() && !data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel.IsNull() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdDataRssiThreshold"); value.Exists() && !data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold.IsNull() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdVoiceRssiThreshold"); value.Exists() && !data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold.IsNull() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.coverageHoleDetectionProperties.chdExceptionLevel"); value.Exists() && !data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.IsNull() {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolValue(value.Bool())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolNull()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Null()
+	}
+	if value := res.Get("radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+	} else {
+		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeBProperties.parentProfile"); value.Exists() && !data.RadioTypeBParentProfile.IsNull() {
 		data.RadioTypeBParentProfile = types.StringValue(value.String())
@@ -521,6 +717,9 @@ func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.RfProfileName.IsNull() {
+		return false
+	}
 	if !data.DefaultRfProfile.IsNull() {
 		return false
 	}
@@ -530,16 +729,7 @@ func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.EnableRadioTypeB.IsNull() {
 		return false
 	}
-	if !data.EnableRadioTypeC.IsNull() {
-		return false
-	}
-	if !data.ChannelWidth.IsNull() {
-		return false
-	}
-	if !data.EnableCustom.IsNull() {
-		return false
-	}
-	if !data.EnableBrownField.IsNull() {
+	if !data.EnableRadioType6GHz.IsNull() {
 		return false
 	}
 	if !data.RadioTypeAParentProfile.IsNull() {
@@ -564,6 +754,57 @@ func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) boo
 		return false
 	}
 	if !data.RadioTypeAMaxPowerLevel.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAChannelWidth.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAPreamblePuncture.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAZeroWaitDfsEnable.IsNull() {
+		return false
+	}
+	if !data.RadioTypeACustomRxSopThreshold.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAMaxRadioClients.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAFraPropertiesClientAware.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAFraPropertiesClientSelect.IsNull() {
+		return false
+	}
+	if !data.RadioTypeAFraPropertiesClientReset.IsNull() {
+		return false
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdClientLevel.IsNull() {
+		return false
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold.IsNull() {
+		return false
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold.IsNull() {
+		return false
+	}
+	if !data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.IsNull() {
+		return false
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
+		return false
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
+		return false
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
+		return false
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
+		return false
+	}
+	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
 		return false
 	}
 	if !data.RadioTypeBParentProfile.IsNull() {

@@ -25,11 +25,14 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -58,7 +61,7 @@ func (r *WirelessRFProfileResource) Metadata(ctx context.Context, req resource.M
 func (r *WirelessRFProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource manages a Wireless RF Profile. <p/> Updating or re-creating this resource might lead to subsequent failures when modifying the resource due to a known API issue.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource manages a Wireless RF Profile.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,76 +71,183 @@ func (r *WirelessRFProfileResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": schema.StringAttribute{
+			"rf_profile_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("RF Profile Name").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:            true,
 			},
 			"default_rf_profile": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("is Default Rf Profile").String,
 				Required:            true,
 			},
 			"enable_radio_type_a": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable Radio Type A").String,
+				MarkdownDescription: helpers.NewAttributeDescription("True if 5 GHz radio band is enabled in the RF Profile, else False").String,
 				Required:            true,
 			},
 			"enable_radio_type_b": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable Radio Type B").String,
+				MarkdownDescription: helpers.NewAttributeDescription("True if 2.4 GHz radio band is enabled in the RF Profile, else False").String,
 				Required:            true,
 			},
-			"enable_radio_type_c": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable Radio Type C (6GHz)").String,
-				Optional:            true,
-			},
-			"channel_width": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Channel Width").String,
-				Required:            true,
-			},
-			"enable_custom": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable Custom").String,
-				Required:            true,
-			},
-			"enable_brown_field": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable Brown Field").String,
+			"enable_radio_type6_g_hz": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("True if 6 GHz radio band is enabled in the RF Profile, else False").String,
 				Required:            true,
 			},
 			"radio_type_a_parent_profile": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Parent Profile").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Parent profile of 5 GHz radio band").AddStringEnumDescription("HIGH", "TYPICAL", "LOW", "CUSTOM").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("HIGH", "TYPICAL", "LOW", "CUSTOM"),
+				},
 			},
 			"radio_type_a_radio_channels": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Radio Channels").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - DCA channels of 5 GHz radio band passed in comma separated format without any spaces").String,
 				Optional:            true,
 			},
 			"radio_type_a_data_rates": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Data Rates").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Data rates of 5 GHz radio band passed in comma separated format without any spaces").String,
 				Optional:            true,
 			},
 			"radio_type_a_mandatory_data_rates": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Mandatory Data Rates").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Mandatory data rates of 5 GHz radio band passed in comma separated format without any spaces and must be a subset of selected dataRates with maximum of 2 values").String,
 				Optional:            true,
 			},
 			"radio_type_a_power_threshold_v1": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Power Threshold V1").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Power threshold of 5 GHz radio band").AddIntegerRangeDescription(-80, -50).String,
 				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-80, -50),
+				},
 			},
 			"radio_type_a_rx_sop_threshold": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Rx Sop Threshold").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - RX-SOP threshold of 5 GHz radio band").AddStringEnumDescription("HIGH", "MEDIUM", "LOW", "AUTO", "CUSTOM").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("HIGH", "MEDIUM", "LOW", "AUTO", "CUSTOM"),
+				},
 			},
 			"radio_type_a_min_power_level": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Min Power Level").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Minimum power level of 5 GHz radio band").AddIntegerRangeDescription(-10, 30).String,
 				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-10, 30),
+				},
 			},
 			"radio_type_a_max_power_level": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Max Power Level").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Maximum power level of 5 GHz radio band").AddIntegerRangeDescription(-10, 30).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-10, 30),
+				},
+			},
+			"radio_type_a_channel_width": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Channel Width").AddStringEnumDescription("20", "40", "80", "160", "best").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("20", "40", "80", "160", "best"),
+				},
+			},
+			"radio_type_a_preamble_puncture": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Enable or Disable Preamble Puncturing").String,
 				Optional:            true,
 			},
-			"radio_type_b_parent_profile": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeB Properties - Parent Profile").String,
+			"radio_type_a_zero_wait_dfs_enable": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Zero Wait DFS is applicable only for IOS-XE based Wireless Controllers running 17.9.1 and above versions").String,
 				Optional:            true,
+			},
+			"radio_type_a_custom_rx_sop_threshold": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Custom RX-SOP threshold of 5 GHz radio band").AddIntegerRangeDescription(-85, -60).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-85, -60),
+				},
+			},
+			"radio_type_a_max_radio_clients": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Client Limit of 5 GHz radio band").AddIntegerRangeDescription(0, 500).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 500),
+				},
+			},
+			"radio_type_a_fra_properties_client_aware": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Client Aware of 5 GHz radio band").String,
+				Optional:            true,
+			},
+			"radio_type_a_fra_properties_client_select": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Client Select(%) of 5 GHz radio band").AddIntegerRangeDescription(0, 100).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 100),
+				},
+			},
+			"radio_type_a_fra_properties_client_reset": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Client Reset(%) of 5 GHz radio band").AddIntegerRangeDescription(0, 100).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 100),
+				},
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_client_level": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Coverage Hole Detection Client Level").AddIntegerRangeDescription(1, 200).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 200),
+				},
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Coverage Hole Detection Data Rssi Threshold").AddIntegerRangeDescription(-90, -60).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-90, -60),
+				},
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Coverage Hole Detection Voice Rssi Threshold").AddIntegerRangeDescription(-90, -60).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-90, -60),
+				},
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_exception_level": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Coverage Hole Detection Exception Level(%)").AddIntegerRangeDescription(0, 100).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 100),
+				},
+			},
+			"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Dot11ax Non SRG OBSS PD").String,
+				Optional:            true,
+			},
+			"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Dot11ax Non SRG OBSS PD Max Threshold").AddIntegerRangeDescription(-82, -62).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-82, -62),
+				},
+			},
+			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Dot11ax SRG OBSS PD").String,
+				Optional:            true,
+			},
+			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Dot11ax SRG OBSS PD Min Threshold").AddIntegerRangeDescription(-82, -62).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-82, -62),
+				},
+			},
+			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Dot11ax SRG OBSS PD Max Threshold").AddIntegerRangeDescription(-82, -62).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(-82, -62),
+				},
+			},
+			"radio_type_b_parent_profile": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeB Properties - Parent Profile").AddStringEnumDescription("HIGH", "TYPICAL", "LOW", "CUSTOM").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("HIGH", "TYPICAL", "LOW", "CUSTOM"),
+				},
 			},
 			"radio_type_b_radio_channels": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeB Properties - Radio Channels").String,
@@ -235,7 +345,13 @@ func (r *WirelessRFProfileResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.Name.ValueString()))
+	params = ""
+	res, err = r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.Id = types.StringValue(res.Get("response.id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -259,7 +375,7 @@ func (r *WirelessRFProfileResource) Read(ctx context.Context, req resource.ReadR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?rf-profile-name=" + url.QueryEscape(state.Id.ValueString())
+	params += "/" + url.QueryEscape(state.Id.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -351,11 +467,10 @@ func (r *WirelessRFProfileResource) ImportState(ctx context.Context, req resourc
 	if len(idParts) != 1 || idParts[0] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <name>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 

@@ -14,7 +14,7 @@ This data source can read the Wireless RF Profile.
 
 ```terraform
 data "catalystcenter_wireless_rf_profile" "example" {
-  id = "RF_Profile_1"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 
@@ -27,22 +27,35 @@ data "catalystcenter_wireless_rf_profile" "example" {
 
 ### Read-Only
 
-- `channel_width` (String) Channel Width
 - `default_rf_profile` (Boolean) is Default Rf Profile
-- `enable_brown_field` (Boolean) Enable Brown Field
-- `enable_custom` (Boolean) Enable Custom
-- `enable_radio_type_a` (Boolean) Enable Radio Type A
-- `enable_radio_type_b` (Boolean) Enable Radio Type B
-- `enable_radio_type_c` (Boolean) Enable Radio Type C (6GHz)
-- `name` (String) RF Profile Name
-- `radio_type_a_data_rates` (String) Radio TypeA Properties - Data Rates
-- `radio_type_a_mandatory_data_rates` (String) Radio TypeA Properties - Mandatory Data Rates
-- `radio_type_a_max_power_level` (Number) Radio TypeA Properties - Max Power Level
-- `radio_type_a_min_power_level` (Number) Radio TypeA Properties - Min Power Level
-- `radio_type_a_parent_profile` (String) Radio TypeA Properties - Parent Profile
-- `radio_type_a_power_threshold_v1` (Number) Radio TypeA Properties - Power Threshold V1
-- `radio_type_a_radio_channels` (String) Radio TypeA Properties - Radio Channels
-- `radio_type_a_rx_sop_threshold` (String) Radio TypeA Properties - Rx Sop Threshold
+- `enable_radio_type6_g_hz` (Boolean) True if 6 GHz radio band is enabled in the RF Profile, else False
+- `enable_radio_type_a` (Boolean) True if 5 GHz radio band is enabled in the RF Profile, else False
+- `enable_radio_type_b` (Boolean) True if 2.4 GHz radio band is enabled in the RF Profile, else False
+- `radio_type_a_channel_width` (String) Radio TypeA Properties - Channel Width
+- `radio_type_a_coverage_hole_detection_properties_chd_client_level` (Number) Radio TypeA Properties - Coverage Hole Detection Client Level
+- `radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold` (Number) Radio TypeA Properties - Coverage Hole Detection Data Rssi Threshold
+- `radio_type_a_coverage_hole_detection_properties_chd_exception_level` (Number) Radio TypeA Properties - Coverage Hole Detection Exception Level(%)
+- `radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold` (Number) Radio TypeA Properties - Coverage Hole Detection Voice Rssi Threshold
+- `radio_type_a_custom_rx_sop_threshold` (Number) Radio TypeA Properties - Custom RX-SOP threshold of 5 GHz radio band
+- `radio_type_a_data_rates` (String) Radio TypeA Properties - Data rates of 5 GHz radio band passed in comma separated format without any spaces
+- `radio_type_a_fra_properties_client_aware` (Boolean) Radio TypeA Properties - Client Aware of 5 GHz radio band
+- `radio_type_a_fra_properties_client_reset` (Number) Radio TypeA Properties - Client Reset(%) of 5 GHz radio band
+- `radio_type_a_fra_properties_client_select` (Number) Radio TypeA Properties - Client Select(%) of 5 GHz radio band
+- `radio_type_a_mandatory_data_rates` (String) Radio TypeA Properties - Mandatory data rates of 5 GHz radio band passed in comma separated format without any spaces and must be a subset of selected dataRates with maximum of 2 values
+- `radio_type_a_max_power_level` (Number) Radio TypeA Properties - Maximum power level of 5 GHz radio band
+- `radio_type_a_max_radio_clients` (Number) Radio TypeA Properties - Client Limit of 5 GHz radio band
+- `radio_type_a_min_power_level` (Number) Radio TypeA Properties - Minimum power level of 5 GHz radio band
+- `radio_type_a_parent_profile` (String) Radio TypeA Properties - Parent profile of 5 GHz radio band
+- `radio_type_a_power_threshold_v1` (Number) Radio TypeA Properties - Power threshold of 5 GHz radio band
+- `radio_type_a_preamble_puncture` (Boolean) Radio TypeA Properties - Enable or Disable Preamble Puncturing
+- `radio_type_a_radio_channels` (String) Radio TypeA Properties - DCA channels of 5 GHz radio band passed in comma separated format without any spaces
+- `radio_type_a_rx_sop_threshold` (String) Radio TypeA Properties - RX-SOP threshold of 5 GHz radio band
+- `radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Radio TypeA Properties - Dot11ax Non SRG OBSS PD
+- `radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Radio TypeA Properties - Dot11ax Non SRG OBSS PD Max Threshold
+- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Radio TypeA Properties - Dot11ax SRG OBSS PD
+- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Radio TypeA Properties - Dot11ax SRG OBSS PD Max Threshold
+- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Radio TypeA Properties - Dot11ax SRG OBSS PD Min Threshold
+- `radio_type_a_zero_wait_dfs_enable` (Boolean) Radio TypeA Properties - Zero Wait DFS is applicable only for IOS-XE based Wireless Controllers running 17.9.1 and above versions
 - `radio_type_b_data_rates` (String) Radio TypeB Properties - Data Rates
 - `radio_type_b_mandatory_data_rates` (String) Radio TypeB Properties - Mandatory Data Rates
 - `radio_type_b_max_power_level` (Number) Radio TypeB Properties - Max Power Level
@@ -59,3 +72,4 @@ data "catalystcenter_wireless_rf_profile" "example" {
 - `radio_type_c_power_threshold_v1` (Number) Radio TypeC Properties - Power Threshold V1
 - `radio_type_c_radio_channels` (String) Radio TypeC Properties - Radio Channels
 - `radio_type_c_rx_sop_threshold` (String) Radio TypeC Properties - Rx Sop Threshold
+- `rf_profile_name` (String) RF Profile Name

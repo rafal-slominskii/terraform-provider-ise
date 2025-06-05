@@ -1,3 +1,3 @@
 data "catalystcenter_wireless_rf_profile" "example" {
-  id = "RF_Profile_1"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }

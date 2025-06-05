@@ -3,41 +3,55 @@
 page_title: "catalystcenter_wireless_rf_profile Resource - terraform-provider-catalystcenter"
 subcategory: "Wireless"
 description: |-
-  This resource manages a Wireless RF Profile.  Updating or re-creating this resource might lead to subsequent failures when modifying the resource due to a known API issue.
+  This resource manages a Wireless RF Profile.
 ---
 
 # catalystcenter_wireless_rf_profile (Resource)
 
-This resource manages a Wireless RF Profile. <p/> Updating or re-creating this resource might lead to subsequent failures when modifying the resource due to a known API issue.
+This resource manages a Wireless RF Profile.
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_wireless_rf_profile" "example" {
-  name                              = "RF_Profile_1"
-  default_rf_profile                = false
-  enable_radio_type_a               = true
-  enable_radio_type_b               = true
-  enable_radio_type_c               = false
-  channel_width                     = "20"
-  enable_custom                     = true
-  enable_brown_field                = false
-  radio_type_a_parent_profile       = "CUSTOM"
-  radio_type_a_radio_channels       = "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"
-  radio_type_a_data_rates           = "6,9,12,18,24,36,48,54"
-  radio_type_a_mandatory_data_rates = "12,24"
-  radio_type_a_power_threshold_v1   = -60
-  radio_type_a_rx_sop_threshold     = "LOW"
-  radio_type_a_min_power_level      = 8
-  radio_type_a_max_power_level      = 20
-  radio_type_b_parent_profile       = "CUSTOM"
-  radio_type_b_radio_channels       = "1,6,11"
-  radio_type_b_data_rates           = "9,11,12,18,24,36,48,54"
-  radio_type_b_mandatory_data_rates = "12"
-  radio_type_b_power_threshold_v1   = -60
-  radio_type_b_rx_sop_threshold     = "LOW"
-  radio_type_b_min_power_level      = 8
-  radio_type_b_max_power_level      = 20
+  rf_profile_name                                                                         = "RF_Profile_1"
+  default_rf_profile                                                                      = false
+  enable_radio_type_a                                                                     = true
+  enable_radio_type_b                                                                     = true
+  enable_radio_type6_g_hz                                                                 = false
+  radio_type_a_parent_profile                                                             = "CUSTOM"
+  radio_type_a_radio_channels                                                             = "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"
+  radio_type_a_data_rates                                                                 = "6,9,12,18,24,36,48,54"
+  radio_type_a_mandatory_data_rates                                                       = "12,24"
+  radio_type_a_power_threshold_v1                                                         = -60
+  radio_type_a_rx_sop_threshold                                                           = "LOW"
+  radio_type_a_min_power_level                                                            = 8
+  radio_type_a_max_power_level                                                            = 20
+  radio_type_a_channel_width                                                              = "20"
+  radio_type_a_preamble_puncture                                                          = false
+  radio_type_a_zero_wait_dfs_enable                                                       = false
+  radio_type_a_custom_rx_sop_threshold                                                    = -70
+  radio_type_a_max_radio_clients                                                          = 200
+  radio_type_a_fra_properties_client_aware                                                = false
+  radio_type_a_fra_properties_client_select                                               = 98
+  radio_type_a_fra_properties_client_reset                                                = 2
+  radio_type_a_coverage_hole_detection_properties_chd_client_level                        = 10
+  radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold                 = -70
+  radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold                = -65
+  radio_type_a_coverage_hole_detection_properties_chd_exception_level                     = 20
+  radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect               = false
+  radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold = -70
+  radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect                   = false
+  radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold     = -70
+  radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold     = -70
+  radio_type_b_parent_profile                                                             = "CUSTOM"
+  radio_type_b_radio_channels                                                             = "1,6,11"
+  radio_type_b_data_rates                                                                 = "9,11,12,18,24,36,48,54"
+  radio_type_b_mandatory_data_rates                                                       = "12"
+  radio_type_b_power_threshold_v1                                                         = -60
+  radio_type_b_rx_sop_threshold                                                           = "LOW"
+  radio_type_b_min_power_level                                                            = 8
+  radio_type_b_max_power_level                                                            = 20
 }
 ```
 
@@ -46,30 +60,61 @@ resource "catalystcenter_wireless_rf_profile" "example" {
 
 ### Required
 
-- `channel_width` (String) Channel Width
 - `default_rf_profile` (Boolean) is Default Rf Profile
-- `enable_brown_field` (Boolean) Enable Brown Field
-- `enable_custom` (Boolean) Enable Custom
-- `enable_radio_type_a` (Boolean) Enable Radio Type A
-- `enable_radio_type_b` (Boolean) Enable Radio Type B
-- `name` (String) RF Profile Name
+- `enable_radio_type6_g_hz` (Boolean) True if 6 GHz radio band is enabled in the RF Profile, else False
+- `enable_radio_type_a` (Boolean) True if 5 GHz radio band is enabled in the RF Profile, else False
+- `enable_radio_type_b` (Boolean) True if 2.4 GHz radio band is enabled in the RF Profile, else False
 
 ### Optional
 
-- `enable_radio_type_c` (Boolean) Enable Radio Type C (6GHz)
-- `radio_type_a_data_rates` (String) Radio TypeA Properties - Data Rates
-- `radio_type_a_mandatory_data_rates` (String) Radio TypeA Properties - Mandatory Data Rates
-- `radio_type_a_max_power_level` (Number) Radio TypeA Properties - Max Power Level
-- `radio_type_a_min_power_level` (Number) Radio TypeA Properties - Min Power Level
-- `radio_type_a_parent_profile` (String) Radio TypeA Properties - Parent Profile
-- `radio_type_a_power_threshold_v1` (Number) Radio TypeA Properties - Power Threshold V1
-- `radio_type_a_radio_channels` (String) Radio TypeA Properties - Radio Channels
-- `radio_type_a_rx_sop_threshold` (String) Radio TypeA Properties - Rx Sop Threshold
+- `radio_type_a_channel_width` (String) Radio TypeA Properties - Channel Width
+  - Choices: `20`, `40`, `80`, `160`, `best`
+- `radio_type_a_coverage_hole_detection_properties_chd_client_level` (Number) Radio TypeA Properties - Coverage Hole Detection Client Level
+  - Range: `1`-`200`
+- `radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold` (Number) Radio TypeA Properties - Coverage Hole Detection Data Rssi Threshold
+  - Range: `-90`-`-60`
+- `radio_type_a_coverage_hole_detection_properties_chd_exception_level` (Number) Radio TypeA Properties - Coverage Hole Detection Exception Level(%)
+  - Range: `0`-`100`
+- `radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold` (Number) Radio TypeA Properties - Coverage Hole Detection Voice Rssi Threshold
+  - Range: `-90`-`-60`
+- `radio_type_a_custom_rx_sop_threshold` (Number) Radio TypeA Properties - Custom RX-SOP threshold of 5 GHz radio band
+  - Range: `-85`-`-60`
+- `radio_type_a_data_rates` (String) Radio TypeA Properties - Data rates of 5 GHz radio band passed in comma separated format without any spaces
+- `radio_type_a_fra_properties_client_aware` (Boolean) Radio TypeA Properties - Client Aware of 5 GHz radio band
+- `radio_type_a_fra_properties_client_reset` (Number) Radio TypeA Properties - Client Reset(%) of 5 GHz radio band
+  - Range: `0`-`100`
+- `radio_type_a_fra_properties_client_select` (Number) Radio TypeA Properties - Client Select(%) of 5 GHz radio band
+  - Range: `0`-`100`
+- `radio_type_a_mandatory_data_rates` (String) Radio TypeA Properties - Mandatory data rates of 5 GHz radio band passed in comma separated format without any spaces and must be a subset of selected dataRates with maximum of 2 values
+- `radio_type_a_max_power_level` (Number) Radio TypeA Properties - Maximum power level of 5 GHz radio band
+  - Range: `-10`-`30`
+- `radio_type_a_max_radio_clients` (Number) Radio TypeA Properties - Client Limit of 5 GHz radio band
+  - Range: `0`-`500`
+- `radio_type_a_min_power_level` (Number) Radio TypeA Properties - Minimum power level of 5 GHz radio band
+  - Range: `-10`-`30`
+- `radio_type_a_parent_profile` (String) Radio TypeA Properties - Parent profile of 5 GHz radio band
+  - Choices: `HIGH`, `TYPICAL`, `LOW`, `CUSTOM`
+- `radio_type_a_power_threshold_v1` (Number) Radio TypeA Properties - Power threshold of 5 GHz radio band
+  - Range: `-80`-`-50`
+- `radio_type_a_preamble_puncture` (Boolean) Radio TypeA Properties - Enable or Disable Preamble Puncturing
+- `radio_type_a_radio_channels` (String) Radio TypeA Properties - DCA channels of 5 GHz radio band passed in comma separated format without any spaces
+- `radio_type_a_rx_sop_threshold` (String) Radio TypeA Properties - RX-SOP threshold of 5 GHz radio band
+  - Choices: `HIGH`, `MEDIUM`, `LOW`, `AUTO`, `CUSTOM`
+- `radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Radio TypeA Properties - Dot11ax Non SRG OBSS PD
+- `radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Radio TypeA Properties - Dot11ax Non SRG OBSS PD Max Threshold
+  - Range: `-82`-`-62`
+- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Radio TypeA Properties - Dot11ax SRG OBSS PD
+- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Radio TypeA Properties - Dot11ax SRG OBSS PD Max Threshold
+  - Range: `-82`-`-62`
+- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Radio TypeA Properties - Dot11ax SRG OBSS PD Min Threshold
+  - Range: `-82`-`-62`
+- `radio_type_a_zero_wait_dfs_enable` (Boolean) Radio TypeA Properties - Zero Wait DFS is applicable only for IOS-XE based Wireless Controllers running 17.9.1 and above versions
 - `radio_type_b_data_rates` (String) Radio TypeB Properties - Data Rates
 - `radio_type_b_mandatory_data_rates` (String) Radio TypeB Properties - Mandatory Data Rates
 - `radio_type_b_max_power_level` (Number) Radio TypeB Properties - Max Power Level
 - `radio_type_b_min_power_level` (Number) Radio TypeB Properties - Min Power Level
 - `radio_type_b_parent_profile` (String) Radio TypeB Properties - Parent Profile
+  - Choices: `HIGH`, `TYPICAL`, `LOW`, `CUSTOM`
 - `radio_type_b_power_threshold_v1` (Number) Radio TypeB Properties - Power Threshold V1
 - `radio_type_b_radio_channels` (String) Radio TypeB Properties - Radio Channels
 - `radio_type_b_rx_sop_threshold` (String) Radio TypeB Properties - Rx Sop Threshold
@@ -81,6 +126,7 @@ resource "catalystcenter_wireless_rf_profile" "example" {
 - `radio_type_c_power_threshold_v1` (Number) Radio TypeC Properties - Power Threshold V1
 - `radio_type_c_radio_channels` (String) Radio TypeC Properties - Radio Channels
 - `radio_type_c_rx_sop_threshold` (String) Radio TypeC Properties - Rx Sop Threshold
+- `rf_profile_name` (String) RF Profile Name
 
 ### Read-Only
 
@@ -91,5 +137,5 @@ resource "catalystcenter_wireless_rf_profile" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_wireless_rf_profile.example "<name>"
+terraform import catalystcenter_wireless_rf_profile.example "<id>"
 ```
