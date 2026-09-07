@@ -76,6 +76,7 @@ func (r *EndpointResource) Schema(ctx context.Context, req resource.SchemaReques
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The name of the endpoint").String,
+				CustomType:          helpers.CaseInsensitiveStringType{},
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
@@ -84,6 +85,7 @@ func (r *EndpointResource) Schema(ctx context.Context, req resource.SchemaReques
 			},
 			"mac": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("MAC address of the endpoint").String,
+				CustomType:          helpers.CaseInsensitiveStringType{},
 				Required:            true,
 			},
 			"group_id": schema.StringAttribute{

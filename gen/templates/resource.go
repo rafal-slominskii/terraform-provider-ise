@@ -108,6 +108,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					.String,
 					{{- if and (eq .Type "String") .NormalizeOperator}}
 					CustomType: helpers.OperatorType{},
+					{{- else if and (eq .Type "String") .CaseInsensitive}}
+					CustomType: helpers.CaseInsensitiveStringType{},
 					{{- end}}
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
@@ -151,17 +153,17 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and .DefaultValue (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace}}
+				{{- if or .Id .Reference .RequiresReplace .Computed}}
 				PlanModifiers: []planmodifier.{{.Type}}{
+					{{- if or .Id .Reference .RequiresReplace}}
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
-				},
-				{{- end}}
-				{{- if .Computed}}
-				PlanModifiers: []planmodifier.{{.Type}}{
+					{{- end}}
+					{{- if .Computed}}
 					{{- if .ComputedWhen}}
 					helpers.ComputedWhen("{{computedWhenAttr .ComputedWhen}}", {{computedWhenValue .ComputedWhen}}),
 					{{- else}}
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+					{{- end}}
 					{{- end}}
 				},
 				{{- end}}
@@ -187,6 +189,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								.String,
 								{{- if and (eq .Type "String") .NormalizeOperator}}
 								CustomType: helpers.OperatorType{},
+								{{- else if and (eq .Type "String") .CaseInsensitive}}
+								CustomType: helpers.CaseInsensitiveStringType{},
 								{{- end}}
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
@@ -262,6 +266,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											.String,
 											{{- if and (eq .Type "String") .NormalizeOperator}}
 											CustomType: helpers.OperatorType{},
+											{{- else if and (eq .Type "String") .CaseInsensitive}}
+											CustomType: helpers.CaseInsensitiveStringType{},
 											{{- end}}
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
@@ -337,6 +343,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														.String,
 														{{- if and (eq .Type "String") .NormalizeOperator}}
 														CustomType: helpers.OperatorType{},
+														{{- else if and (eq .Type "String") .CaseInsensitive}}
+														CustomType: helpers.CaseInsensitiveStringType{},
 														{{- end}}
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
@@ -412,6 +420,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 																	.String,
 																	{{- if and (eq .Type "String") .NormalizeOperator}}
 																	CustomType: helpers.OperatorType{},
+																	{{- else if and (eq .Type "String") .CaseInsensitive}}
+																	CustomType: helpers.CaseInsensitiveStringType{},
 																	{{- end}}
 																{{- if isListSet .}}
 																ElementType:         types.{{.ElementType}}Type,
@@ -487,6 +497,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 																				.String,
 																				{{- if and (eq .Type "String") .NormalizeOperator}}
 																				CustomType: helpers.OperatorType{},
+																				{{- else if and (eq .Type "String") .CaseInsensitive}}
+																				CustomType: helpers.CaseInsensitiveStringType{},
 																				{{- end}}
 																			{{- if isListSet .}}
 																			ElementType:         types.{{.ElementType}}Type,
@@ -562,6 +574,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 																						.String,
 																						{{- if and (eq .Type "String") .NormalizeOperator}}
 																						CustomType: helpers.OperatorType{},
+																						{{- else if and (eq .Type "String") .CaseInsensitive}}
+																						CustomType: helpers.CaseInsensitiveStringType{},
 																						{{- end}}
 																					{{- if isListSet .}}
 																					ElementType:         types.{{.ElementType}}Type,

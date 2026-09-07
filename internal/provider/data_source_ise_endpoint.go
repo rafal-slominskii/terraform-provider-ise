@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/CiscoDevNet/terraform-provider-ise/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -73,6 +74,7 @@ func (d *EndpointDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "The name of the endpoint",
+				CustomType:          helpers.CaseInsensitiveStringType{},
 				Optional:            true,
 				Computed:            true,
 			},
@@ -82,6 +84,7 @@ func (d *EndpointDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			},
 			"mac": schema.StringAttribute{
 				MarkdownDescription: "MAC address of the endpoint",
+				CustomType:          helpers.CaseInsensitiveStringType{},
 				Computed:            true,
 			},
 			"group_id": schema.StringAttribute{

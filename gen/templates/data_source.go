@@ -85,6 +85,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "{{.Description}}",
 				{{- if and (eq .Type "String") .NormalizeOperator}}
 				CustomType: helpers.OperatorType{},
+				{{- else if and (eq .Type "String") .CaseInsensitive}}
+				CustomType: helpers.CaseInsensitiveStringType{},
 				{{- end}}
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
@@ -114,6 +116,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 							MarkdownDescription: "{{.Description}}",
 							{{- if and (eq .Type "String") .NormalizeOperator}}
 							CustomType: helpers.OperatorType{},
+							{{- else if and (eq .Type "String") .CaseInsensitive}}
+							CustomType: helpers.CaseInsensitiveStringType{},
 							{{- end}}
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
@@ -130,6 +134,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 										MarkdownDescription: "{{.Description}}",
 										{{- if and (eq .Type "String") .NormalizeOperator}}
 										CustomType: helpers.OperatorType{},
+										{{- else if and (eq .Type "String") .CaseInsensitive}}
+										CustomType: helpers.CaseInsensitiveStringType{},
 										{{- end}}
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
@@ -146,6 +152,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 													MarkdownDescription: "{{.Description}}",
 													{{- if and (eq .Type "String") .NormalizeOperator}}
 													CustomType: helpers.OperatorType{},
+													{{- else if and (eq .Type "String") .CaseInsensitive}}
+													CustomType: helpers.CaseInsensitiveStringType{},
 													{{- end}}
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
@@ -162,6 +170,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 																MarkdownDescription: "{{.Description}}",
 																{{- if and (eq .Type "String") .NormalizeOperator}}
 																CustomType: helpers.OperatorType{},
+																{{- else if and (eq .Type "String") .CaseInsensitive}}
+																CustomType: helpers.CaseInsensitiveStringType{},
 																{{- end}}
 																{{- if isListSet .}}
 																ElementType:         types.{{.ElementType}}Type,
@@ -178,6 +188,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 																			MarkdownDescription: "{{.Description}}",
 																			{{- if and (eq .Type "String") .NormalizeOperator}}
 																			CustomType: helpers.OperatorType{},
+																			{{- else if and (eq .Type "String") .CaseInsensitive}}
+																			CustomType: helpers.CaseInsensitiveStringType{},
 																			{{- end}}
 																			{{- if isListSet .}}
 																			ElementType:         types.{{.ElementType}}Type,

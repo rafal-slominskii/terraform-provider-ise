@@ -33,33 +33,33 @@ import (
 
 //template:begin types
 type Endpoint struct {
-	Id                             types.String `tfsdk:"id"`
-	Name                           types.String `tfsdk:"name"`
-	Description                    types.String `tfsdk:"description"`
-	Mac                            types.String `tfsdk:"mac"`
-	GroupId                        types.String `tfsdk:"group_id"`
-	ProfileId                      types.String `tfsdk:"profile_id"`
-	StaticProfileAssignment        types.Bool   `tfsdk:"static_profile_assignment"`
-	StaticProfileAssignmentDefined types.Bool   `tfsdk:"static_profile_assignment_defined"`
-	StaticGroupAssignment          types.Bool   `tfsdk:"static_group_assignment"`
-	StaticGroupAssignmentDefined   types.Bool   `tfsdk:"static_group_assignment_defined"`
-	CustomAttributes               types.Map    `tfsdk:"custom_attributes"`
-	IdentityStore                  types.String `tfsdk:"identity_store"`
-	IdentityStoreId                types.String `tfsdk:"identity_store_id"`
-	PortalUser                     types.String `tfsdk:"portal_user"`
-	MdmServerName                  types.String `tfsdk:"mdm_server_name"`
-	MdmReachable                   types.Bool   `tfsdk:"mdm_reachable"`
-	MdmEnrolled                    types.Bool   `tfsdk:"mdm_enrolled"`
-	MdmComplianceStatus            types.Bool   `tfsdk:"mdm_compliance_status"`
-	MdmOs                          types.String `tfsdk:"mdm_os"`
-	MdmManufacturer                types.String `tfsdk:"mdm_manufacturer"`
-	MdmModel                       types.String `tfsdk:"mdm_model"`
-	MdmSerial                      types.String `tfsdk:"mdm_serial"`
-	MdmEncrypted                   types.Bool   `tfsdk:"mdm_encrypted"`
-	MdmPinlock                     types.Bool   `tfsdk:"mdm_pinlock"`
-	MdmJailBroken                  types.Bool   `tfsdk:"mdm_jail_broken"`
-	MdmImei                        types.String `tfsdk:"mdm_imei"`
-	MdmPhoneNumber                 types.String `tfsdk:"mdm_phone_number"`
+	Id                             types.String                       `tfsdk:"id"`
+	Name                           helpers.CaseInsensitiveStringValue `tfsdk:"name"`
+	Description                    types.String                       `tfsdk:"description"`
+	Mac                            helpers.CaseInsensitiveStringValue `tfsdk:"mac"`
+	GroupId                        types.String                       `tfsdk:"group_id"`
+	ProfileId                      types.String                       `tfsdk:"profile_id"`
+	StaticProfileAssignment        types.Bool                         `tfsdk:"static_profile_assignment"`
+	StaticProfileAssignmentDefined types.Bool                         `tfsdk:"static_profile_assignment_defined"`
+	StaticGroupAssignment          types.Bool                         `tfsdk:"static_group_assignment"`
+	StaticGroupAssignmentDefined   types.Bool                         `tfsdk:"static_group_assignment_defined"`
+	CustomAttributes               types.Map                          `tfsdk:"custom_attributes"`
+	IdentityStore                  types.String                       `tfsdk:"identity_store"`
+	IdentityStoreId                types.String                       `tfsdk:"identity_store_id"`
+	PortalUser                     types.String                       `tfsdk:"portal_user"`
+	MdmServerName                  types.String                       `tfsdk:"mdm_server_name"`
+	MdmReachable                   types.Bool                         `tfsdk:"mdm_reachable"`
+	MdmEnrolled                    types.Bool                         `tfsdk:"mdm_enrolled"`
+	MdmComplianceStatus            types.Bool                         `tfsdk:"mdm_compliance_status"`
+	MdmOs                          types.String                       `tfsdk:"mdm_os"`
+	MdmManufacturer                types.String                       `tfsdk:"mdm_manufacturer"`
+	MdmModel                       types.String                       `tfsdk:"mdm_model"`
+	MdmSerial                      types.String                       `tfsdk:"mdm_serial"`
+	MdmEncrypted                   types.Bool                         `tfsdk:"mdm_encrypted"`
+	MdmPinlock                     types.Bool                         `tfsdk:"mdm_pinlock"`
+	MdmJailBroken                  types.Bool                         `tfsdk:"mdm_jail_broken"`
+	MdmImei                        types.String                       `tfsdk:"mdm_imei"`
+	MdmPhoneNumber                 types.String                       `tfsdk:"mdm_phone_number"`
 }
 
 //template:end types
@@ -166,9 +166,9 @@ func (data Endpoint) toBody(ctx context.Context, state Endpoint) string {
 //template:begin fromBody
 func (data *Endpoint) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("ERSEndPoint.name"); value.Exists() && value.Type != gjson.Null && value.String() != "" {
-		data.Name = types.StringValue(value.String())
+		data.Name = helpers.NewCaseInsensitiveStringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.Name = helpers.NewCaseInsensitiveStringNull()
 	}
 	if value := res.Get("ERSEndPoint.description"); value.Exists() && value.Type != gjson.Null && value.String() != "" && value.String() != "" {
 		data.Description = types.StringValue(value.String())
@@ -176,9 +176,9 @@ func (data *Endpoint) fromBody(ctx context.Context, res gjson.Result) {
 		data.Description = types.StringNull()
 	}
 	if value := res.Get("ERSEndPoint.mac"); value.Exists() && value.Type != gjson.Null && value.String() != "" {
-		data.Mac = types.StringValue(value.String())
+		data.Mac = helpers.NewCaseInsensitiveStringValue(value.String())
 	} else {
-		data.Mac = types.StringNull()
+		data.Mac = helpers.NewCaseInsensitiveStringNull()
 	}
 	// group_id is server-owned when static_group_assignment == false; only
 	// adopt it into state on the operator-owned branch so it is not written back on the next apply.
@@ -310,9 +310,9 @@ func (data *Endpoint) fromBody(ctx context.Context, res gjson.Result) {
 //template:begin updateFromBody
 func (data *Endpoint) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("ERSEndPoint.name"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
+		data.Name = helpers.NewCaseInsensitiveStringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.Name = helpers.NewCaseInsensitiveStringNull()
 	}
 	if value := res.Get("ERSEndPoint.description"); value.Exists() && !data.Description.IsNull() && value.String() != "" {
 		data.Description = types.StringValue(value.String())
@@ -320,9 +320,9 @@ func (data *Endpoint) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Description = types.StringNull()
 	}
 	if value := res.Get("ERSEndPoint.mac"); value.Exists() && !data.Mac.IsNull() {
-		data.Mac = types.StringValue(value.String())
+		data.Mac = helpers.NewCaseInsensitiveStringValue(value.String())
 	} else {
-		data.Mac = types.StringNull()
+		data.Mac = helpers.NewCaseInsensitiveStringNull()
 	}
 	if value := res.Get("ERSEndPoint.groupId"); value.Exists() && !data.GroupId.IsNull() {
 		data.GroupId = types.StringValue(value.String())

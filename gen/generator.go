@@ -131,52 +131,53 @@ type YamlConfig struct {
 }
 
 type YamlConfigAttribute struct {
-	ModelName        string                `yaml:"model_name"`
-	TfName           string                `yaml:"tf_name"`
-	Type             string                `yaml:"type"`
-	ElementType      string                `yaml:"element_type"`
-	DataPath         []string              `yaml:"data_path"`
-	Id               bool                  `yaml:"id"`
-	Reference        bool                  `yaml:"reference"`
-	DataSourceQuery  bool                  `yaml:"data_source_query"`
-	ResponseDataPath string                `yaml:"response_data_path"`
-	ResponseValueRegex string                `yaml:"response_value_regex"`
-	Mandatory        bool                  `yaml:"mandatory"`
-	Computed         bool                  `yaml:"computed"`
-	ComputedWhen     string                `yaml:"computed_when"`
-	Immutable        bool                  `yaml:"immutable"`
-	WriteOnly        bool                  `yaml:"write_only"`
-	NormalizeEmptyJson   bool                  `yaml:"normalize_empty_json"`
-	NormalizeEmptyString bool                  `yaml:"normalize_empty_string"`
-	PreserveEmptyString  bool                  `yaml:"preserve_empty_string"`
-	NormalizeOperator    bool                  `yaml:"normalize_operator"`
-	SortCommaSeparated   bool                  `yaml:"sort_comma_separated"`
-	WriteChangesOnly bool                  `yaml:"write_changes_only"`
-	ExcludeUpdate    bool                  `yaml:"exclude_update"`
-	ExcludeTest      bool                  `yaml:"exclude_test"`
-	RequiresReplace  bool                  `yaml:"requires_replace"`
-	ExcludeExample   bool                  `yaml:"exclude_example"`
-	Description      string                `yaml:"description"`
-	Example          string                `yaml:"example"`
-	EnumValues       []string              `yaml:"enum_values"`
-	MinList          int64                 `yaml:"min_list"`
-	MaxList          int64                 `yaml:"max_list"`
-	MinInt           int64                 `yaml:"min_int"`
-	MaxInt           int64                 `yaml:"max_int"`
+	ModelName              string                `yaml:"model_name"`
+	TfName                 string                `yaml:"tf_name"`
+	Type                   string                `yaml:"type"`
+	ElementType            string                `yaml:"element_type"`
+	DataPath               []string              `yaml:"data_path"`
+	Id                     bool                  `yaml:"id"`
+	Reference              bool                  `yaml:"reference"`
+	DataSourceQuery        bool                  `yaml:"data_source_query"`
+	ResponseDataPath       string                `yaml:"response_data_path"`
+	ResponseValueRegex     string                `yaml:"response_value_regex"`
+	Mandatory              bool                  `yaml:"mandatory"`
+	Computed               bool                  `yaml:"computed"`
+	ComputedWhen           string                `yaml:"computed_when"`
+	Immutable              bool                  `yaml:"immutable"`
+	WriteOnly              bool                  `yaml:"write_only"`
+	NormalizeEmptyJson     bool                  `yaml:"normalize_empty_json"`
+	NormalizeEmptyString   bool                  `yaml:"normalize_empty_string"`
+	PreserveEmptyString    bool                  `yaml:"preserve_empty_string"`
+	NormalizeOperator      bool                  `yaml:"normalize_operator"`
+	SortCommaSeparated     bool                  `yaml:"sort_comma_separated"`
+	WriteChangesOnly       bool                  `yaml:"write_changes_only"`
+	ExcludeUpdate          bool                  `yaml:"exclude_update"`
+	ExcludeTest            bool                  `yaml:"exclude_test"`
+	RequiresReplace        bool                  `yaml:"requires_replace"`
+	ExcludeExample         bool                  `yaml:"exclude_example"`
+	Description            string                `yaml:"description"`
+	Example                string                `yaml:"example"`
+	EnumValues             []string              `yaml:"enum_values"`
+	MinList                int64                 `yaml:"min_list"`
+	MaxList                int64                 `yaml:"max_list"`
+	MinInt                 int64                 `yaml:"min_int"`
+	MaxInt                 int64                 `yaml:"max_int"`
 	ZeroAllowed            bool                  `yaml:"zero_allowed"`
 	ZeroAllowedDescription string                `yaml:"zero_allowed_description"`
-	MinFloat         float64               `yaml:"min_float"`
-	MaxFloat         float64               `yaml:"max_float"`
-	StringPatterns   []string              `yaml:"string_patterns"`
-	StringMinLength  int64                 `yaml:"string_min_length"`
-	StringMaxLength  int64                 `yaml:"string_max_length"`
-	DefaultValue     *string               `yaml:"default_value"`
-	Value            string                `yaml:"value"`
-	TestValue        string                `yaml:"test_value"`
-	MinimumTestValue string                `yaml:"minimum_test_value"`
-	TestTags         []string              `yaml:"test_tags"`
-	Attributes       []YamlConfigAttribute `yaml:"attributes"`
-	FilterEmptyValues bool                  `yaml:"filter_empty_values"`
+	MinFloat               float64               `yaml:"min_float"`
+	MaxFloat               float64               `yaml:"max_float"`
+	StringPatterns         []string              `yaml:"string_patterns"`
+	StringMinLength        int64                 `yaml:"string_min_length"`
+	StringMaxLength        int64                 `yaml:"string_max_length"`
+	DefaultValue           *string               `yaml:"default_value"`
+	Value                  string                `yaml:"value"`
+	TestValue              string                `yaml:"test_value"`
+	MinimumTestValue       string                `yaml:"minimum_test_value"`
+	TestTags               []string              `yaml:"test_tags"`
+	Attributes             []YamlConfigAttribute `yaml:"attributes"`
+	FilterEmptyValues      bool                  `yaml:"filter_empty_values"`
+	CaseInsensitive        bool                  `yaml:"case_insensitive"`
 }
 
 // Templating helper function to convert TF name to GO name
@@ -443,27 +444,42 @@ var functions = template.FuncMap{
 // GoValueType returns the Go type for an attribute's model struct field.
 // String attributes flagged normalize_operator use the custom helpers.OperatorValue
 // type so the framework folds ISE's ip*-alias operator spellings via semantic equality.
+// String attributes flagged case_insensitive use the custom
+// helpers.CaseInsensitiveStringValue type so the framework treats a case-only
+// difference as no change via semantic equality, instead of a plan modifier (which
+// cannot legally rewrite a Required/non-Computed attribute's planned value). Currently
+// only wired up for top-level (non-nested) attributes — see fromBody/updateFromBody in
+// gen/templates/model.go.
 func GoValueType(attr YamlConfigAttribute) string {
 	if attr.Type == "String" && attr.NormalizeOperator {
 		return "helpers.OperatorValue"
+	}
+	if attr.Type == "String" && attr.CaseInsensitive {
+		return "helpers.CaseInsensitiveStringValue"
 	}
 	return "types." + attr.Type
 }
 
 // GoValueCtor returns the constructor call (including the argument) that builds a
-// known value for an attribute, honoring the custom operator type.
+// known value for an attribute, honoring the custom operator/case-insensitive types.
 func GoValueCtor(attr YamlConfigAttribute, arg string) string {
 	if attr.Type == "String" && attr.NormalizeOperator {
 		return "helpers.NewOperatorValue(" + arg + ")"
+	}
+	if attr.Type == "String" && attr.CaseInsensitive {
+		return "helpers.NewCaseInsensitiveStringValue(" + arg + ")"
 	}
 	return "types." + attr.Type + "Value(" + arg + ")"
 }
 
 // GoNullCtor returns the constructor call that builds a null value for an attribute,
-// honoring the custom operator type.
+// honoring the custom operator/case-insensitive types.
 func GoNullCtor(attr YamlConfigAttribute) string {
 	if attr.Type == "String" && attr.NormalizeOperator {
 		return "helpers.NewOperatorNull()"
+	}
+	if attr.Type == "String" && attr.CaseInsensitive {
+		return "helpers.NewCaseInsensitiveStringNull()"
 	}
 	return "types." + attr.Type + "Null()"
 }
