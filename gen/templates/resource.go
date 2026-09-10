@@ -105,6 +105,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{- if .DefaultValue -}}
 					.AddDefaultValueDescription("{{.DefaultValue}}")
 					{{- end -}}
+					{{- if len .MutualExclusivityNote -}}
+					.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+					{{- end -}}
+					{{- if len .DeprecationMessage -}}
+					.AddDeprecationDescription("{{.DeprecationMessage}}")
+					{{- end -}}
 					.String,
 					{{- if and (eq .Type "String") .NormalizeOperator}}
 					CustomType: helpers.OperatorType{},
@@ -116,6 +122,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if eq .Type "Map"}}
 				ElementType:         types.StringType,
 				{{- end}}
+				{{- if .WriteOnlyTF}}
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				{{- else}}
+				{{- if .LegacyWriteOnlyTF}}
+				Sensitive:           true,
+				{{- end}}
 				{{- if or .Reference .Mandatory}}
 				Required:            true,
 				{{- else}}
@@ -123,6 +137,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- end}}
 				{{- if or .DefaultValue .Computed}}
 				Computed:            true,
+				{{- end}}
 				{{- end}}
 				{{- if len .EnumValues}}
 				Validators: []validator.String{
@@ -186,6 +201,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								{{- if .DefaultValue -}}
 								.AddDefaultValueDescription("{{.DefaultValue}}")
 								{{- end -}}
+								{{- if len .MutualExclusivityNote -}}
+								.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+								{{- end -}}
+								{{- if len .DeprecationMessage -}}
+								.AddDeprecationDescription("{{.DeprecationMessage}}")
+								{{- end -}}
 								.String,
 								{{- if and (eq .Type "String") .NormalizeOperator}}
 								CustomType: helpers.OperatorType{},
@@ -197,6 +218,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if eq .Type "Map"}}
 							ElementType:         types.StringType,
 							{{- end}}
+							{{- if .WriteOnlyTF}}
+							Optional:            true,
+							WriteOnly:           true,
+							Sensitive:           true,
+							{{- else}}
+							{{- if .LegacyWriteOnlyTF}}
+							Sensitive:           true,
+							{{- end}}
 							{{- if or .Reference .Mandatory}}
 							Required:            true,
 							{{- else}}
@@ -204,6 +233,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or .DefaultValue .Computed}}
 							Computed:            true,
+							{{- end}}
 							{{- end}}
 							{{- if len .EnumValues}}
 							Validators: []validator.String{
@@ -757,6 +787,100 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 
 	r.client = req.ProviderData.(*IseProviderData).Client
 }
+{{- if or (legacyWriteOnlyTFAttributes .) (legacyWriteOnlyTFParentLists .)}}
+
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	{{- range legacyWriteOnlyTFAttributes .}}
+	{{- $go := toGoName .TfName}}
+	var legacy{{$go}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &legacy{{$go}})...)
+	var wo{{$go}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo"), &wo{{$go}})...)
+	{{- if .WoPairHasVersion}}
+	var woVersion{{$go}} types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo_version"), &woVersion{{$go}})...)
+	{{- end}}
+	if !legacy{{$go}}.IsUnknown() && !wo{{$go}}.IsUnknown() && !legacy{{$go}}.IsNull() && !wo{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set.",
+		)
+	}
+	{{- if .WoPairMandatory}}
+	if !legacy{{$go}}.IsUnknown() && !wo{{$go}}.IsUnknown() && legacy{{$go}}.IsNull() && wo{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set.",
+		)
+	}
+	{{- end}}
+	{{- if .WoPairHasVersion}}
+	if !wo{{$go}}.IsUnknown() && !woVersion{{$go}}.IsUnknown() && !wo{{$go}}.IsNull() && woVersion{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	{{- end}}
+	if !legacy{{$go}}.IsUnknown() && !legacy{{$go}}.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "{{.DeprecationMessage}}")
+	}
+	{{- end}}
+	{{- range legacyWriteOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	{
+		// Secrets nested in "{{$parentTf}}" are validated per element. A list that cannot be
+		// read as a whole - because it is still unknown at validation time - is skipped
+		// rather than reported, since there is nothing to check yet.
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		if diags := req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}}); !diags.HasError() {
+			for i := range cfg{{$parentGo}} {
+				{{- range legacyWriteOnlyTFChildren .}}
+				{{- $go := toGoName .TfName}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}.IsNull() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set in `{{$parentTf}}` element %d.", i),
+					)
+				}
+				{{- if .WoPairMandatory}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && cfg{{$parentGo}}[i].{{$go}}.IsNull() && cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set in `{{$parentTf}}` element %d.", i),
+					)
+				}
+				{{- end}}
+				{{- if .WoPairHasVersion}}
+				if !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}WoVersion.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() && cfg{{$parentGo}}[i].{{$go}}WoVersion.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used in `{{$parentTf}}` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
+					)
+				}
+				{{- end}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}.IsNull() {
+					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("{{.DeprecationMessage}} (`{{$parentTf}}` element %d)", i))
+				}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
+}
+{{- end}}
 //template:end configure
 
 //template:begin create
@@ -774,6 +898,34 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	{{- range .Attributes}}
+	{{- if .WriteOnlyTF}}
+	// Write-only value "{{.TfName}}" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &plan.{{toGoName .TfName}})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	{{- end}}
+	{{- end}}
+	{{- range writeOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	// Write-only values in list "{{.TfName}}" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element.
+	{
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.{{$parentGo}} {
+			if i < len(cfg{{$parentGo}}) {
+				{{- range writeOnlyTFChildren .}}
+				plan.{{$parentGo}}[i].{{toGoName .TfName}} = cfg{{$parentGo}}[i].{{toGoName .TfName}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 	{{- if strContains (camelCase .Name) "UpdateRanks" }}
@@ -1009,6 +1161,34 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	{{- range .Attributes}}
+	{{- if .WriteOnlyTF}}
+	// Write-only value "{{.TfName}}" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update: the whole toBody is sent and the API requires the secret to be present on every write. The "{{.TfName}}_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire request omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &plan.{{toGoName .TfName}})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	{{- end}}
+	{{- end}}
+	{{- range writeOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	// Write-only values in list "{{.TfName}}" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element. Read unconditionally for the same reason as the top-level secrets above.
+	{
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.{{$parentGo}} {
+			if i < len(cfg{{$parentGo}}) {
+				{{- range writeOnlyTFChildren .}}
+				plan.{{$parentGo}}[i].{{toGoName .TfName}} = cfg{{$parentGo}}[i].{{toGoName .TfName}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 	{{- if strContains (camelCase .Name) "UpdateRanks" }}

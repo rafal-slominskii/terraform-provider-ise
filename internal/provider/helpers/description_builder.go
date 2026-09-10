@@ -63,3 +63,13 @@ func (d *AttributeDescription) AddFloatRangeDescription(min, max float64) *Attri
 	d.String = fmt.Sprintf("%s\n  - Range: `%v`-`%v`", d.String, min, max)
 	return d
 }
+
+func (d *AttributeDescription) AddMutualExclusivityDescription(note string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - %s", d.String, note)
+	return d
+}
+
+func (d *AttributeDescription) AddDeprecationDescription(message string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - Deprecated: %s", d.String, message)
+	return d
+}
