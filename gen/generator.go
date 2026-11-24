@@ -96,6 +96,9 @@ var templates = []t{
 type YamlConfig struct {
 	Name                string                `yaml:"name"`
 	RestEndpoint        string                `yaml:"rest_endpoint"`
+	CreateRestEndpoint  string                `yaml:"create_rest_endpoint"`
+	ReadAfterWrite      bool                  `yaml:"read_after_write"`
+	UpdateAfterCreate   bool                  `yaml:"update_after_create"`
 	DeleteRestEndpoint  string                `yaml:"delete_rest_endpoint"`
 	GetNoId             bool                  `yaml:"get_no_id"`
 	NoDataSource        bool                  `yaml:"no_data_source"`
@@ -143,6 +146,11 @@ type YamlConfigAttribute struct {
 	ResponseValueRegex          string                `yaml:"response_value_regex"`
 	Mandatory                   bool                  `yaml:"mandatory"`
 	Computed                    bool                  `yaml:"computed"`
+	ComputedOnly                bool                  `yaml:"computed_only"`
+	ExcludeCreate               bool                  `yaml:"exclude_create"`
+	CertificateFingerprint      string                `yaml:"certificate_fingerprint"`
+	ExampleExpression           string                `yaml:"example_expression"`
+	EnabledWhen                 string                `yaml:"enabled_when"`
 	ComputedWhen                string                `yaml:"computed_when"`
 	PreserveStateIfUnconfigured bool                  `yaml:"preserve_state_if_unconfigured"`
 	Immutable                   bool                  `yaml:"immutable"`
@@ -157,6 +165,7 @@ type YamlConfigAttribute struct {
 	CoexistenceNote             string                `yaml:"coexistence_note"`
 	NormalizeEmptyJson          bool                  `yaml:"normalize_empty_json"`
 	NormalizeEmptyString        bool                  `yaml:"normalize_empty_string"`
+	NormalizeZero               bool                  `yaml:"normalize_zero"`
 	PreserveEmptyString         bool                  `yaml:"preserve_empty_string"`
 	NormalizeOperator           bool                  `yaml:"normalize_operator"`
 	SortCommaSeparated          bool                  `yaml:"sort_comma_separated"`
@@ -284,6 +293,33 @@ func HasComputedWhen(attributes []YamlConfigAttribute) bool {
 		}
 	}
 	return false
+}
+
+func HasEnabledWhen(attributes []YamlConfigAttribute) bool {
+	for _, attribute := range attributes {
+		if attribute.EnabledWhen != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func AttributeByName(attributes []YamlConfigAttribute, name string) YamlConfigAttribute {
+	for _, attribute := range attributes {
+		if attribute.TfName == name {
+			return attribute
+		}
+	}
+	panic(fmt.Sprintf("unknown sibling attribute %q", name))
+}
+
+func CertificateInput(attributes []YamlConfigAttribute, fingerprint string) string {
+	for _, attribute := range attributes {
+		if attribute.CertificateFingerprint == fingerprint {
+			return attribute.TfName
+		}
+	}
+	return ""
 }
 
 // ComputedWhenModelName returns the ISE model (JSON) name of the sibling attribute in a
@@ -498,6 +534,9 @@ func HasAttribute(attributes []YamlConfigAttribute, attrName string) bool {
 
 // Map of templating functions
 var functions = template.FuncMap{
+	"certificateInput":            CertificateInput,
+	"hasEnabledWhen":              HasEnabledWhen,
+	"attributeByName":             AttributeByName,
 	"toGoName":                    ToGoName,
 	"camelCase":                   CamelCase,
 	"strContains":                 strings.Contains,
@@ -581,6 +620,12 @@ func GoNullCtor(attr YamlConfigAttribute) string {
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
+	if attr.NormalizeZero && attr.Type != "Int64" {
+		panic("normalize_zero is only supported on Int64 attributes")
+	}
+	if attr.CertificateFingerprint != "" && (attr.Type != "String" || !attr.WriteOnly || !attr.ExcludeUpdate) {
+		panic("certificate_fingerprint requires a write_only String with exclude_update")
+	}
 	if attr.TfName == "" {
 		var words []string
 		l := 0
@@ -613,8 +658,19 @@ func augmentAttribute(attr *YamlConfigAttribute) {
 }
 
 func augmentConfig(config *YamlConfig) {
+	if config.UpdateAfterCreate && !config.ReadAfterWrite {
+		panic("update_after_create requires read_after_write")
+	}
 	for ia := range config.Attributes {
 		augmentAttribute(&config.Attributes[ia])
+	}
+	for _, attribute := range config.Attributes {
+		if attribute.EnabledWhen != "" {
+			parent := AttributeByName(config.Attributes, attribute.EnabledWhen)
+			if parent.Type != "Bool" || !attribute.Computed || (attribute.Type != "Bool" && attribute.Type != "String" && attribute.Type != "Int64") {
+				panic("enabled_when requires a computed scalar attribute and a Bool sibling")
+			}
+		}
 	}
 	// For each top-level attribute marked write_only_tf, rename it to "<tf_name>_wo"
 	// (the Terraform-core write-only attribute) and inject a companion

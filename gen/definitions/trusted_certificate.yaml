@@ -1,0 +1,256 @@
+---
+name: Trusted Certificate
+rest_endpoint: /api/v1/certs/trusted-certificate
+create_rest_endpoint: /api/v1/certs/trusted-certificate/import
+id_path: response.id
+read_after_write: true
+update_after_create: true
+no_data_source: true
+doc_category: Certificates
+test_tags:
+  - CERTIFICATES
+res_description: Manage a trusted certificate on the primary ISE administration node. Existing certificates must be imported by ID. CRL, OCSP and status settings are preserved when omitted. Destroy deletes the certificate; use the Terraform lifecycle prevent_destroy setting when deletion must be blocked. If an import response is lost, inspect ISE and import the created certificate by ID before retrying.
+attributes:
+  - model_name: name
+    type: String
+    mandatory: true
+    response_data_path: response.friendlyName
+    description: Friendly name of the trusted certificate.
+    example: NaC Test CA
+  - model_name: description
+    type: String
+    default_value: ''
+    description: Description of the trusted certificate.
+    example: Root CA for ISE authentication
+  - model_name: data
+    tf_name: certificate_pem
+    type: String
+    mandatory: true
+    write_only: true
+    exclude_update: true
+    certificate_fingerprint: sha256_fingerprint
+    description: One PEM-encoded X.509 certificate. A different DER certificate requires replacement; equivalent PEM formatting preserves the certificate ID.
+    example_expression: file("ca.pem")
+    test_value: file("testdata/trusted_certificate.pem")
+  - model_name: sha256Fingerprint
+    tf_name: sha256_fingerprint
+    type: String
+    computed_only: true
+    exclude_test: true
+    description: SHA-256 certificate fingerprint reported by ISE.
+  - model_name: trustForIseAuth
+    type: Bool
+    default_value: false
+    response_data_path: response.trustedFor
+    response_value_regex: (^|,)\s*Infrastructure\s*(,|$)
+    description: Trust for Authentication within ISE and Client-Server communication.
+    example: true
+    minimum_test_value: 'true'
+  - model_name: trustForClientAuth
+    type: Bool
+    default_value: false
+    response_data_path: response.trustedFor
+    response_value_regex: (^|,)\s*Endpoints\s*(,|$)
+    description: Trust for client authentication and Syslog.
+    example: true
+  - model_name: trustForCertificateBasedAdminAuth
+    type: Bool
+    default_value: false
+    response_data_path: response.trustedFor
+    response_value_regex: (^|,)\s*AdminAuth\s*(,|$)
+    description: Trust for Certificate based Admin authentication.
+    example: false
+  - model_name: trustForCiscoServicesAuth
+    type: Bool
+    default_value: false
+    response_data_path: response.trustedFor
+    response_value_regex: (^|,)\s*Cisco Services\s*(,|$)
+    description: Trust for authentication of Cisco Services.
+    example: false
+  - model_name: allowBasicConstraintCAFalse
+    tf_name: allow_basic_constraint_ca_false
+    type: Bool
+    write_only: true
+    exclude_update: true
+    default_value: false
+    description: Allow certificates with Basic Constraints CA Field as False. Only used when importing the certificate into ISE.
+    example: false
+  - model_name: allowMultipleCNCert
+    type: Bool
+    write_only: true
+    exclude_update: true
+    default_value: false
+    description: Allow certificates with multiple CN. Only used when importing the certificate into ISE.
+    example: false
+    tf_name: allow_multiple_cn_cert
+  - model_name: allowOutOfDateCert
+    type: Bool
+    write_only: true
+    exclude_update: true
+    default_value: false
+    description: Allow out of date certificates. Only used when importing the certificate into ISE.
+    example: false
+  - model_name: allowSHA1Certificates
+    type: Bool
+    write_only: true
+    exclude_update: true
+    default_value: false
+    description: Allow SHA1 based certificates. Only used when importing the certificate into ISE.
+    example: false
+    tf_name: allow_sha1_certificates
+  - model_name: validateCertificateExtensions
+    type: Bool
+    write_only: true
+    exclude_update: true
+    default_value: true
+    description: Validate trust certificate extension. Only used when importing the certificate into ISE.
+    example: true
+  - model_name: authenticateBeforeCRLReceived
+    enabled_when: download_crl
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to enable or disable CRL verification if CRL is not received. When omitted, preserve the current ISE value. Only effective when download_crl is true; inactive values are represented as false.
+    response_value_regex: ^(on|true)$
+    tf_name: authenticate_before_crl_received
+  - model_name: automaticCRLUpdate
+    enabled_when: download_crl
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to enable or disable automatic CRL update. When omitted, preserve the current ISE value. Only effective when download_crl is true; inactive values are represented as false.
+    response_value_regex: ^(on|true)$
+    tf_name: automatic_crl_update
+  - model_name: automaticCRLUpdatePeriod
+    enabled_when: automatic_crl_update
+    type: Int64
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Automatic CRL update period. Requires automatic_crl_update = true. When omitted, preserve the current ISE value.
+    tf_name: automatic_crl_update_period
+  - model_name: automaticCRLUpdateUnits
+    enabled_when: automatic_crl_update
+    type: String
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Unit of time for automatic CRL update. Requires automatic_crl_update = true. When omitted, preserve the current ISE value.
+    enum_values:
+      - Days
+      - Hours
+      - Minutes
+      - Weeks
+    tf_name: automatic_crl_update_units
+  - model_name: crlDistributionUrl
+    type: String
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: CRL Distribution URL. When omitted, preserve the current ISE value.
+  - model_name: crlDownloadFailureRetries
+    type: Int64
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: If CRL download fails, wait time before retry. When omitted, preserve the current ISE value.
+  - model_name: crlDownloadFailureRetriesUnits
+    type: String
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Unit of time before retry if CRL download fails. When omitted, preserve the current ISE value.
+    enum_values:
+      - Days
+      - Hours
+      - Minutes
+      - Weeks
+  - model_name: downloadCRL
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to enable or disable download of CRL. When omitted, preserve the current ISE value.
+    response_value_regex: ^(on|true)$
+    tf_name: download_crl
+  - model_name: enableOCSPValidation
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to enable or disable OCSP Validation. When omitted, preserve the current ISE value.
+    response_value_regex: ^(on|true)$
+    tf_name: enable_ocsp_validation
+  - model_name: enableServerIdentityCheck
+    enabled_when: download_crl
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to enable or disable verification if HTTPS or LDAP server certificate name fits the configured server URL. When omitted, preserve the current ISE value. Only effective when download_crl is true; inactive values are represented as false.
+    response_value_regex: ^(on|true)$
+  - model_name: ignoreCRLExpiration
+    enabled_when: download_crl
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to enable or disable ignore CRL expiration. When omitted, preserve the current ISE value. Only effective when download_crl is true; inactive values are represented as false.
+    response_value_regex: ^(on|true)$
+    tf_name: ignore_crl_expiration
+  - model_name: nonAutomaticCRLUpdatePeriod
+    normalize_zero: true
+    min_int: 1
+    max_int: 2147483647
+    type: Int64
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Manual CRL update period. Configure only in manual refresh mode. ISE reports an inactive zero as null because zero is rejected on update. When omitted, preserve the current effective ISE value.
+    tf_name: non_automatic_crl_update_period
+  - model_name: nonAutomaticCRLUpdateUnits
+    type: String
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Unit of time of non automatic CRL update. When omitted, preserve the current ISE value.
+    enum_values:
+      - Days
+      - Hours
+      - Minutes
+      - Weeks
+    tf_name: non_automatic_crl_update_units
+  - model_name: rejectIfNoStatusFromOCSP
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to reject certificate if there is no status from OCSP. When omitted, preserve the current ISE value.
+    response_value_regex: ^(on|true)$
+    tf_name: reject_if_no_status_from_ocsp
+  - model_name: rejectIfUnreachableFromOCSP
+    type: Bool
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Switch to reject certificate if unreachable from OCSP. When omitted, preserve the current ISE value.
+    response_value_regex: ^(on|true)$
+    tf_name: reject_if_unreachable_from_ocsp
+  - model_name: selectedOCSPService
+    type: String
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Name of selected OCSP Service. When omitted, preserve the current ISE value.
+    tf_name: selected_ocsp_service
+  - model_name: status
+    type: String
+    computed: true
+    exclude_create: true
+    exclude_test: true
+    description: Trusted certificate status. When omitted, preserve the current ISE value.
+    enum_values:
+      - Disabled
+      - Enabled

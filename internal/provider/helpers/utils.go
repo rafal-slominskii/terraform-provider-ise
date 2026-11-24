@@ -30,6 +30,24 @@ import (
 
 var responseValueRegexCache sync.Map
 
+func responseValueRegexp(pattern string) (*regexp.Regexp, error) {
+	if cached, ok := responseValueRegexCache.Load(pattern); ok {
+		return cached.(*regexp.Regexp), nil
+	}
+	compiled, err := regexp.Compile(pattern)
+	if err != nil {
+		return nil, err
+	}
+	cached, _ := responseValueRegexCache.LoadOrStore(pattern, compiled)
+	return cached.(*regexp.Regexp), nil
+}
+
+// MatchResponseValue interprets a display-form boolean using the shared regex cache.
+func MatchResponseValue(s, pattern string) bool {
+	re, err := responseValueRegexp(pattern)
+	return err == nil && re.MatchString(s)
+}
+
 // ExtractResponseValue applies pattern to s and returns the first capture group. Some ISE
 // endpoints render a reference in a display-only form that the API refuses on write (for
 // example an SGT is written as "Auditors" but read back as "Auditors (9/0009)"). Extracting
@@ -37,15 +55,11 @@ var responseValueRegexCache sync.Map
 // after `terraform import` clean. If the pattern does not match, s is returned unchanged so an
 // unexpected response shape surfaces as a diff rather than as a silently mangled value.
 func ExtractResponseValue(s, pattern string) string {
-	re, ok := responseValueRegexCache.Load(pattern)
-	if !ok {
-		compiled, err := regexp.Compile(pattern)
-		if err != nil {
-			return s
-		}
-		re, _ = responseValueRegexCache.LoadOrStore(pattern, compiled)
+	re, err := responseValueRegexp(pattern)
+	if err != nil {
+		return s
 	}
-	m := re.(*regexp.Regexp).FindStringSubmatch(s)
+	m := re.FindStringSubmatch(s)
 	if len(m) < 2 {
 		return s
 	}

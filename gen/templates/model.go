@@ -372,14 +372,18 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	{{- range .Attributes}}
 	{{- if .Value}}
 	body, _ = sjson.Set(body, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
-	{{- else if and (not .Reference) (not .WoVersion)}}
+	{{- else if and (not .Reference) (not .WoVersion) (not .ComputedOnly)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-	{{- if .ExcludeUpdate}}
+	{{- if .ExcludeCreate}}
+	if state.Id.ValueString() != "" && !data.{{toGoName .TfName}}.IsNull() && !data.{{toGoName .TfName}}.IsUnknown() {
+		body, _ = sjson.Set(body, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", data.{{toGoName .TfName}}.Value{{.Type}}())
+	}
+	{{- else if .ExcludeUpdate}}
 	if !data.{{toGoName .TfName}}.IsNull() && state.Id.ValueString() == "" {
 		body, _ = sjson.Set(body, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", data.{{toGoName .TfName}}.Value{{.Type}}())
 	}
 	{{- else}}
-	if !data.{{toGoName .TfName}}.IsNull() {{if .ComputedWhen}}&& !data.{{toGoName .TfName}}.IsUnknown(){{end}}{{if .WriteChangesOnly}}&& data.{{toGoName .TfName}} != state.{{toGoName .TfName}}{{end}} {
+	if !data.{{toGoName .TfName}}.IsNull() {{if or .ComputedWhen (and $.ReadAfterWrite .Computed)}}&& !data.{{toGoName .TfName}}.IsUnknown(){{end}}{{if .WriteChangesOnly}}&& data.{{toGoName .TfName}} != state.{{toGoName .TfName}}{{end}} {
 		body, _ = sjson.Set(body, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{if and (eq .Type "String") .NormalizeOperator}}helpers.NormalizeOperator(data.{{toGoName .TfName}}.ValueString()){{else}}data.{{toGoName .TfName}}.Value{{.Type}}(){{end}})
 	}
 	{{- end}}
@@ -605,8 +609,8 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 		data.{{toGoName .TfName}} = types.{{.Type}}Null()
 	}
 	{{- else}}
-	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if $openApi}}response.{{end}}{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && value.Type != gjson.Null{{if .NormalizeEmptyJson}} && !((value.Type == gjson.JSON && len(value.Map()) == 0) || (value.Type == gjson.String && value.String() == "{}")){{end}}{{if .NormalizeEmptyString}} && value.String() != ""{{end}}{{if and (eq .Type "String") (not .DefaultValue) (hasComputedWhen $.Attributes)}} && value.String() != ""{{end}} {
-		data.{{toGoName .TfName}} = {{if .ResponseValueRegex}}types.{{.Type}}Value(helpers.ExtractResponseValue(value.String(), `{{.ResponseValueRegex}}`)){{else if and (eq .Type "String") .NormalizeOperator}}helpers.NewOperatorValue(helpers.NormalizeOperator(value.String())){{else if and (eq .Type "String") .CaseInsensitive}}helpers.NewCaseInsensitiveStringValue(value.String()){{else if and (eq .Type "String") .SortCommaSeparated}}types.StringValue(helpers.SortCommaSeparated(value.String())){{else}}types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}()){{end}}
+	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if $openApi}}response.{{end}}{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && value.Type != gjson.Null{{if .NormalizeEmptyJson}} && !((value.Type == gjson.JSON && len(value.Map()) == 0) || (value.Type == gjson.String && value.String() == "{}")){{end}}{{if .NormalizeEmptyString}} && value.String() != ""{{end}}{{if .NormalizeZero}} && value.Int() != 0{{end}}{{if and (eq .Type "String") (not .DefaultValue) (hasComputedWhen $.Attributes)}} && value.String() != ""{{end}} {
+		data.{{toGoName .TfName}} = {{if and .ResponseValueRegex (eq .Type "Bool")}}types.BoolValue(helpers.MatchResponseValue(value.String(), `{{.ResponseValueRegex}}`){{if .EnabledWhen}}{{ $parent := attributeByName $.Attributes .EnabledWhen }} && {{if $parent.ResponseValueRegex}}helpers.MatchResponseValue(res.Get("{{if $parent.ResponseDataPath}}{{$parent.ResponseDataPath}}{{else}}{{if $openApi}}response.{{end}}{{range $parent.DataPath}}{{.}}.{{end}}{{$parent.ModelName}}{{end}}").String(), `{{$parent.ResponseValueRegex}}`){{else}}res.Get("{{if $openApi}}response.{{end}}{{range $parent.DataPath}}{{.}}.{{end}}{{$parent.ModelName}}").Bool(){{end}}{{end}}){{else if .ResponseValueRegex}}types.{{.Type}}Value(helpers.ExtractResponseValue(value.String(), `{{.ResponseValueRegex}}`)){{else if and (eq .Type "String") .NormalizeOperator}}helpers.NewOperatorValue(helpers.NormalizeOperator(value.String())){{else if and (eq .Type "String") .CaseInsensitive}}helpers.NewCaseInsensitiveStringValue(value.String()){{else if and (eq .Type "String") .SortCommaSeparated}}types.StringValue(helpers.SortCommaSeparated(value.String())){{else}}types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}()){{end}}
 	} else {
 		{{- if .DefaultValue}}
 		data.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}})
@@ -895,8 +899,8 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 
 	{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if $openApi}}response.{{end}}{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull(){{if .NormalizeEmptyJson}} && !((value.Type == gjson.JSON && len(value.Map()) == 0) || (value.Type == gjson.String && value.String() == "{}")){{end}}{{if .NormalizeEmptyString}} && value.String() != ""{{end}} {
-		data.{{toGoName .TfName}} = {{if .ResponseValueRegex}}types.{{.Type}}Value(helpers.ExtractResponseValue(value.String(), `{{.ResponseValueRegex}}`)){{else if and (eq .Type "String") .NormalizeOperator}}helpers.NewOperatorValue(helpers.NormalizeOperator(value.String())){{else if and (eq .Type "String") .CaseInsensitive}}helpers.NewCaseInsensitiveStringValue(value.String()){{else if and (eq .Type "String") .SortCommaSeparated}}types.StringValue(helpers.SortCommaSeparated(value.String())){{else}}types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}()){{end}}
+	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if $openApi}}response.{{end}}{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}{{end}}"); value.Exists(){{if $.ReadAfterWrite}} && value.Type != gjson.Null{{end}}{{if not (or (and $.ReadAfterWrite .Computed) .ComputedOnly)}} && !data.{{toGoName .TfName}}.IsNull(){{end}}{{if .NormalizeEmptyJson}} && !((value.Type == gjson.JSON && len(value.Map()) == 0) || (value.Type == gjson.String && value.String() == "{}")){{end}}{{if .NormalizeEmptyString}} && value.String() != ""{{end}}{{if .NormalizeZero}} && value.Int() != 0{{end}} {
+		data.{{toGoName .TfName}} = {{if and .ResponseValueRegex (eq .Type "Bool")}}types.BoolValue(helpers.MatchResponseValue(value.String(), `{{.ResponseValueRegex}}`){{if .EnabledWhen}}{{ $parent := attributeByName $.Attributes .EnabledWhen }} && {{if $parent.ResponseValueRegex}}helpers.MatchResponseValue(res.Get("{{if $parent.ResponseDataPath}}{{$parent.ResponseDataPath}}{{else}}{{if $openApi}}response.{{end}}{{range $parent.DataPath}}{{.}}.{{end}}{{$parent.ModelName}}{{end}}").String(), `{{$parent.ResponseValueRegex}}`){{else}}res.Get("{{if $openApi}}response.{{end}}{{range $parent.DataPath}}{{.}}.{{end}}{{$parent.ModelName}}").Bool(){{end}}{{end}}){{else if .ResponseValueRegex}}types.{{.Type}}Value(helpers.ExtractResponseValue(value.String(), `{{.ResponseValueRegex}}`)){{else if and (eq .Type "String") .NormalizeOperator}}helpers.NewOperatorValue(helpers.NormalizeOperator(value.String())){{else if and (eq .Type "String") .CaseInsensitive}}helpers.NewCaseInsensitiveStringValue(value.String()){{else if and (eq .Type "String") .SortCommaSeparated}}types.StringValue(helpers.SortCommaSeparated(value.String())){{else}}types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}()){{end}}
 	} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
 		data.{{toGoName .TfName}} = {{goNullCtor .}}
 	}

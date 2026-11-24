@@ -130,16 +130,21 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- if .CoexistingSecret}}
 				Sensitive:           true,
 				{{- end}}
-				{{- if or .Reference .Mandatory}}
+				{{- if .ComputedOnly}}
+				{{- else if or .Reference .Mandatory}}
 				Required:            true,
 				{{- else}}
 				Optional:            true,
 				{{- end}}
-				{{- if or .DefaultValue .Computed}}
+				{{- if or .DefaultValue .Computed .ComputedOnly}}
 				Computed:            true,
 				{{- end}}
 				{{- end}}
-				{{- if len .EnumValues}}
+				{{- if .CertificateFingerprint}}
+				Validators: []validator.String{
+					helpers.CertificatePEM(),
+				},
+				{{- else if len .EnumValues}}
 				Validators: []validator.String{
 					stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 				},
@@ -168,13 +173,22 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and .DefaultValue (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace .Computed}}
+				{{- $certificateInput := certificateInput $.Attributes .TfName}}
+				{{- if or .Id .Reference .RequiresReplace .Computed .CertificateFingerprint $certificateInput}}
 				PlanModifiers: []planmodifier.{{.Type}}{
+					{{- if $certificateInput}}
+					 helpers.CertificateFingerprintUseState("{{$certificateInput}}"),
+					{{- end}}
+					{{- if .CertificateFingerprint}}
+					 helpers.CertificateRequiresReplace("{{.CertificateFingerprint}}"),
+					{{- end}}
 					{{- if or .Id .Reference .RequiresReplace}}
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
 					{{- end}}
 					{{- if .Computed}}
-					{{- if .ComputedWhen}}
+					{{- if and .EnabledWhen (eq .Type "Bool")}}
+					helpers.BoolEnabledWhen("{{.EnabledWhen}}"),
+					{{- else if .ComputedWhen}}
 					helpers.ComputedWhen("{{computedWhenAttr .ComputedWhen}}", {{computedWhenValue .ComputedWhen}}),
 					{{- else if .PreserveStateIfUnconfigured}}
 					helpers.PreserveStateIfUnconfigured(),
@@ -888,8 +902,11 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 
 	r.client = req.ProviderData.(*IseProviderData).Client
 }
-{{- if or (coexistingSecretAttributes .) (coexistingSecretParentLists .)}}
+{{- if or (coexistingSecretAttributes .) (coexistingSecretParentLists .) (hasEnabledWhen .Attributes)}}
 
+{{- if and (hasEnabledWhen .Attributes) (not (or (coexistingSecretAttributes .) (coexistingSecretParentLists .)))}}
+// ValidateConfig rejects settings whose enabling switch is disabled or omitted.
+{{- else}}
 // ValidateConfig enforces the relationship between a secret attribute, its write-only
 // "_wo" counterpart and the "_wo_version" rotation trigger.
 //
@@ -900,7 +917,23 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 // output and CI logs. A resource-scoped diagnostic is rendered against the resource block
 // header instead, so the messages name the attributes explicitly, and identify the list
 // element by index for secrets nested inside a list.
+{{- end}}
+{{- if and (hasEnabledWhen .Attributes) (or (coexistingSecretAttributes .) (coexistingSecretParentLists .))}}
+// It also rejects settings whose enabling switch is disabled or omitted.
+{{- end}}
 func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	{{- if hasEnabledWhen .Attributes}}
+	var config {{camelCase .Name}}
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	if resp.Diagnostics.HasError() { return }
+	{{- range .Attributes}}
+	{{- if .EnabledWhen}}
+	if !config.{{toGoName .TfName}}.IsNull() && !config.{{toGoName .TfName}}.IsUnknown(){{if eq .Type "Bool"}} && config.{{toGoName .TfName}}.ValueBool(){{end}} && !config.{{toGoName .EnabledWhen}}.IsUnknown() && !config.{{toGoName .EnabledWhen}}.ValueBool() {
+		resp.Diagnostics.AddAttributeError(path.Root("{{.TfName}}"), "Inactive setting", "Configure {{.EnabledWhen}} = true when setting {{.TfName}}.")
+	}
+	{{- end}}
+	{{- end}}
+	{{- end}}
 	{{- range coexistingSecretAttributes .}}
 	{{- $go := toGoName .TfName}}
 	var legacy{{$go}} types.String
@@ -1122,7 +1155,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- else if and (isErs .RestEndpoint) (not .IdPath) (not (hasId .Attributes))}}
 	res, location, err := r.client.Post(plan.getPath(), body)
 	{{- else}}
-	res, _, err := r.client.Post(plan.getPath(), body)
+	res, _, err := r.client.Post({{if .CreateRestEndpoint}}"{{.CreateRestEndpoint}}"{{else}}plan.getPath(){{end}}, body)
 	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object ({{- if .PutCreate}}PUT{{else}}POST{{end}}), got error: %s, %s", err, res.String()))
@@ -1130,6 +1163,12 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	}
 	{{- if .IdPath}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
+	{{- if .CreateRestEndpoint}}
+	if plan.Id.ValueString() == "" {
+		resp.Diagnostics.AddError("Missing object ID", fmt.Sprintf("The create response contained no {{.IdPath}}. Inspect ISE and import any created object by ID before retrying. Response: %s", res.String()))
+		return
+	}
+	{{- end}}
 	{{- else if and (hasId .Attributes) (not .PutIdQueryPath)}}
 		{{- $id := getId .Attributes}}
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
@@ -1185,6 +1224,55 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		}
 	}
 	{{- end}}
+	{{- end}}
+
+	{{- if .ReadAfterWrite}}
+	{{- if .UpdateAfterCreate}}
+	configureUpdateOnly := false
+	{{- range .Attributes}}
+	{{- if .ExcludeCreate}}
+	if !plan.{{toGoName .TfName}}.IsUnknown() && !plan.{{toGoName .TfName}}.IsNull() { configureUpdateOnly = true }
+	{{- end}}
+	{{- end}}
+	{{- end}}
+	// Import APIs can return only an ID. Read server defaults before applying update-only settings.
+	created, readErr := r.client.Get(plan.getPath() + "/" + url.PathEscape(plan.Id.ValueString()))
+	if readErr != nil {
+		// Keep ownership of the successfully created object even if its first read fails.
+		{{- range .Attributes}}
+		{{- if or .Computed .ComputedOnly}}
+		if plan.{{toGoName .TfName}}.IsUnknown() { plan.{{toGoName .TfName}} = {{goNullCtor .}} }
+		{{- end}}
+		{{- end}}
+		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Created object %s but failed to read it: %s", plan.Id.ValueString(), readErr))
+		return
+	}
+	var defaults {{camelCase .Name}}
+	defaults.fromBody(ctx, created)
+	{{- range .Attributes}}
+	{{- if or .Computed .ComputedOnly}}
+	if plan.{{toGoName .TfName}}.IsUnknown() { plan.{{toGoName .TfName}} = defaults.{{toGoName .TfName}} }
+	{{- end}}
+	{{- end}}
+	// Save the ID before a follow-up write, so an error cannot orphan the object.
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	if resp.Diagnostics.HasError() { return }
+	{{- if .UpdateAfterCreate}}
+	if configureUpdateOnly {
+	updated, updateErr := r.client.Put(plan.getPath() + "/" + url.PathEscape(plan.Id.ValueString()), plan.toBody(ctx, plan))
+	if updateErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure update-only settings: %s, %s", updateErr, updated.String()))
+		return
+	}
+	created, readErr = r.client.Get(plan.getPath() + "/" + url.PathEscape(plan.Id.ValueString()))
+	if readErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read configured object: %s", readErr))
+		return
+	}
+	}
+	{{- end}}
+	plan.updateFromBody(ctx, created)
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -1423,6 +1511,15 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	}
 	{{- end}}
 	{{- end}}
+	{{- end}}
+
+	{{- if .ReadAfterWrite}}
+	readBack, readErr := r.client.Get(plan.getPath() + "/" + url.PathEscape(plan.Id.ValueString()))
+	if readErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read updated object: %s", readErr))
+		return
+	}
+	plan.updateFromBody(ctx, readBack)
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))

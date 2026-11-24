@@ -1,6 +1,9 @@
 ---
 name: str() # Name of the resource
 rest_endpoint: str(required=False) # REST endpoint path
+create_rest_endpoint: str(required=False) # Override POST endpoint for creation
+read_after_write: bool(required=False) # Read back the object after create/update to populate computed attributes
+update_after_create: bool(required=False) # Read imported defaults and PUT update-only settings after creation; requires read_after_write
 delete_rest_endpoint: str(required=False) # Override DELETE REST endpoint path
 update_default: bool(required=False)  # Set to true to allow updating the default policy set and rules.
 get_no_id: bool(required=False) # Set to true if the GET request does not require an ID
@@ -46,6 +49,11 @@ attribute:
   data_source_query: bool(required=False) # Set to true if the attribute is an alternative query parameter for the data source
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   computed: bool(required=False) # Set to true if the attribute is computed
+  computed_only: bool(required=False) # Read-only output, excluded from request bodies and configuration
+  exclude_create: bool(required=False) # Attribute is accepted by the update API only
+  certificate_fingerprint: str(required=False) # PEM certificate input: validate X.509 and replace only when DER differs; names the SHA-256 output used when importing
+  example_expression: str(required=False) # Raw HCL expression used in documentation examples
+  enabled_when: str(required=False) # Bool sibling that must be explicitly true when configuring this attribute (or enabling a Bool); inactive Bool switches are normalized to false
   computed_when: str(required=False) # Conditional computed marker "<bool_attr>=<true|false>"; when the sibling Bool matches and this attribute is unset in config, keep the prior state value (conditional UseStateForUnknown, e.g. "static_profile_assignment=false")
   preserve_state_if_unconfigured: bool(required=False) # Set to true on a computed nested list to use PreserveStateIfUnconfigured() instead of UseStateForUnknown(), preventing destroy/recreate when the attribute is omitted from config
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value
@@ -53,6 +61,7 @@ attribute:
   coexistence_note: str(required=False) # Documentation note recommending the write-only spelling of an attribute. Generated automatically for the legacy twin of a `write_only_tf` attribute.
   normalize_empty_json: bool(required=False) # Set to true to normalize an empty JSON object ({} or "{}") returned by the API to null, preventing drift when the config omits the attribute
   normalize_empty_string: bool(required=False) # Set to true to normalize an empty string ("") returned by the API to null, preventing drift when the config omits the attribute
+  normalize_zero: bool(required=False) # Int64: normalize an inactive API zero to null when zero cannot be sent back to the update API
   preserve_empty_string: bool(required=False) # Set to true to normalize null to empty string for mandatory fields that must contain "" when unset (opposite of normalize_empty_string)
   normalize_operator: bool(required=False) # Set to true to normalize IP-specific operator aliases (ipEquals -> equals, etc.) for stable key matching
   sort_comma_separated: bool(required=False) # Set to true to sort the comma-separated values alphabetically on read, preventing drift when the API returns values in an unpredictable order
@@ -77,7 +86,7 @@ attribute:
   default_value: any(str(), int(), bool(), required=False) # Default value for the attribute
   value: any(str(), int(), bool(), required=False) # Hardcoded value for the attribute
   response_data_path: str(required=False) # Path to the attribute in the response model structure
-  response_value_regex: str(required=False) # Regex applied to a String attribute when reading it from the API response, the first capture group replaces the raw value, useful if the API renders a value in a display-only form that it refuses on write
+  response_value_regex: str(required=False) # String: extract first capture group; Bool: true when the response matches the regex
   test_value: str(required=False) # Value used for acceptance test
   minimum_test_value: str(required=False) # Value used for "minimum" resource acceptance test
   test_tags: list(str(), required=False) # List of test tags, attribute is only included in acceptance tests if an environment variable with one of these tags is configured
