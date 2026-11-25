@@ -123,7 +123,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- if .WriteOnlyTF}}
-				Optional:            true,
+				{{if and .WriteOnlyTFOnly .Mandatory}}Required: true,{{else}}Optional: true,{{end}}
 				WriteOnly:           true,
 				Sensitive:           true,
 				{{- else}}
@@ -1011,6 +1011,7 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 //template:end configure
 
 //template:begin create
+{{- if not .CustomCRUD}}
 func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan {{camelCase .Name}}
 	{{- if strContains (camelCase .Name) "UpdateRanks" }}
@@ -1280,9 +1281,11 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+{{- end}}
 //template:end create
 
 //template:begin read
+{{- if not .CustomCRUD}}
 func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state {{camelCase .Name}}
 
@@ -1322,9 +1325,11 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
+{{- end}}
 //template:end read
 
 //template:begin update
+{{- if not .CustomCRUD}}
 func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state {{camelCase .Name}}
 	{{- if strContains (camelCase .Name) "UpdateRanks" }}
@@ -1527,9 +1532,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+{{- end}}
 //template:end update
 
 //template:begin delete
+{{- if not .CustomCRUD}}
 func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state {{camelCase .Name}}
 
@@ -1559,6 +1566,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 
 	resp.State.RemoveResource(ctx)
 }
+{{- end}}
 //template:end delete
 
 //template:begin import
